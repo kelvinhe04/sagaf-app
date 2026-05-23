@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAGAF V2 - Prototipo Semi-funcional</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #e4e9f2;
+      --primary: #145c9e;
+      --primary-dark: #0f3e69;
+      --primary-soft: #e8f3ff;
+      --teal: #0f766e;
+      --teal-soft: #e7f8f5;
+      --green: #15803d;
+      --green-soft: #e9f9ef;
+      --amber: #b7791f;
+      --amber-soft: #fff4db;
+      --red: #b42318;
+      --red-soft: #ffe9e7;
+      --purple: #6941c6;
+      --purple-soft: #f1ebff;
+      --shadow: 0 16px 42px rgba(21, 40, 72, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(20, 92, 158, .10), transparent 34%),
+        linear-gradient(180deg, #fbfdff, var(--bg));
+      color: var(--ink);
+    }
+
+    button, input, textarea, select { font: inherit; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 24px;
+      background: linear-gradient(180deg, #0b3359, #102a43);
+      color: white;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.15);
+      font-weight: 900;
+      letter-spacing: .03em;
+    }
+
+    .brand h1 { margin: 0; font-size: 23px; }
+
+    .brand span {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.35;
+    }
+
+    .side-title {
+      margin: 22px 0 9px;
+      color: #9fb6cc;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      font-weight: 800;
+    }
+
+    .nav { display: grid; gap: 8px; }
+
+    .nav button {
+      border: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 13px;
+      color: #e2e8f0;
+      background: transparent;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .nav button:hover, .nav button.active {
+      background: rgba(255,255,255,.13);
+      color: white;
+    }
+
+    .side-note {
+      margin-top: 22px;
+      padding: 15px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      color: #d8e6f3;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .main { padding: 30px; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin: 0;
+      color: #102a43;
+      font-size: 30px;
+      line-height: 1.1;
+    }
+
+    .lead {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.55;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px 8px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: white;
+      box-shadow: var(--shadow);
+      min-width: 240px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--teal));
+      font-weight: 900;
+    }
+
+    .user-chip strong { display: block; font-size: 14px; }
+    .small { font-size: 12px; color: var(--muted); }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .kpi { overflow: hidden; position: relative; }
+
+    .kpi::after {
+      content: "";
+      position: absolute;
+      right: -25px;
+      top: -25px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+    }
+
+    .kpi span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .kpi strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 32px;
+      color: #102a43;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .badge.blue { background: var(--primary-soft); color: var(--primary); }
+    .badge.green { background: var(--green-soft); color: var(--green); }
+    .badge.amber { background: var(--amber-soft); color: var(--amber); }
+    .badge.red { background: var(--red-soft); color: var(--red); }
+    .badge.purple { background: var(--purple-soft); color: var(--purple); }
+
+    .uaf-layout {
+      display: grid;
+      grid-template-columns: 0.82fr 1.18fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .panel-head h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #102a43;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .search-line {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .search-line input, .search-line select {
+      flex: 1;
+      min-width: 170px;
+    }
+
+    input, select, textarea {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(20,92,158,.11);
+    }
+
+    .report-list { display: grid; gap: 12px; }
+
+    .report-item {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      border-radius: 18px;
+      padding: 14px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .report-item:hover, .report-item.active {
+      border-color: rgba(20,92,158,.45);
+      background: #f4faff;
+      transform: translateY(-1px);
+    }
+
+    .report-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .report-top strong { color: var(--primary-dark); }
+
+    .report-meta {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 9px 12px;
+      color: #344054;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .info-box {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      border-radius: 16px;
+      padding: 13px;
+    }
+
+    .info-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .info-box strong {
+      display: block;
+      color: #172033;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .masked {
+      font-family: Consolas, monospace;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      padding: 4px 7px;
+      border-radius: 9px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 15px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: var(--primary); color: white; }
+    .btn.secondary { background: #e7edf5; color: #344054; }
+    .btn.ghost { background: white; border: 1px solid var(--line); color: #344054; }
+    .btn.green { background: var(--green-soft); color: var(--green); }
+    .btn.amber { background: var(--amber-soft); color: var(--amber); }
+    .btn.red { background: var(--red-soft); color: var(--red); }
+
+    .timeline { display: grid; gap: 12px; }
+
+    .event {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      border: 2px solid var(--primary);
+      margin-top: 2px;
+    }
+
+    .event strong {
+      display: block;
+      color: #102a43;
+      font-size: 14px;
+    }
+
+    .event span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .progress-row { display: grid; gap: 10px; }
+
+    .progress-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+      background: #fbfdff;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .bar {
+      height: 9px;
+      background: #e8edf5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > div {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--teal));
+    }
+
+    .portal-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 0.84fr 1.16fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .notice {
+      padding: 14px 15px;
+      border-radius: 16px;
+      background: var(--primary-soft);
+      border: 1px solid #cfe6ff;
+      color: #17446f;
+      font-size: 13px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .steps { display: grid; gap: 10px; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 900;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      color: #344054;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .section-title {
+      grid-column: 1 / -1;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #f1f6fb;
+      border: 1px solid #dbe8f6;
+      color: #12355b;
+      font-weight: 950;
+      margin-top: 6px;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .client-status {
+      display: none;
+      grid-column: 1 / -1;
+      padding: 13px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .client-status.exists {
+      display: block;
+      background: var(--amber-soft);
+      border: 1px solid #fedf89;
+      color: #7a4b00;
+    }
+
+    .client-status.new {
+      display: block;
+      background: var(--green-soft);
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .client-status.found {
+      display: block;
+      background: var(--green-soft);
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .client-status.warning {
+      display: block;
+      background: var(--amber-soft);
+      border: 1px solid #fedf89;
+      color: #7a4b00;
+    }
+
+    .lookup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .lookup-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .lookup-card {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .lookup-title {
+      font-weight: 900;
+      color: #172033;
+      font-size: 14px;
+    }
+
+    .lookup-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .lookup-row input {
+      flex: 1;
+    }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .doc-card {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .doc-card.uploaded {
+      border-color: rgba(21,128,61,.35);
+      background: #fbfffd;
+    }
+
+    .doc-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .doc-title {
+      font-weight: 900;
+      color: #172033;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .file-name {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      display: none;
+    }
+
+    .doc-card.uploaded .file-name { display: block; }
+
+    .doc-card input[type="file"] {
+      padding: 10px;
+      border-style: dashed;
+      background: white;
+    }
+
+    .doc-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .doc-summary .info-box { text-align: center; }
+
+    .doc-summary strong {
+      font-size: 22px;
+      color: var(--primary);
+    }
+
+    .hidden { display: none !important; }
+
+    .success-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 20;
+    }
+
+    .success-modal.show { display: flex; }
+
+    .modal-card {
+      max-width: 520px;
+      background: white;
+      border-radius: 26px;
+      padding: 26px;
+      box-shadow: 0 30px 80px rgba(15,23,42,.25);
+      text-align: center;
+    }
+
+    .modal-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 14px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 1150px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { height: auto; position: relative; }
+      .kpis, .uaf-layout, .portal-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .main { padding: 18px; }
+      h2 { font-size: 25px; }
+      .form-grid, .doc-grid, .summary-grid, .doc-summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">SG</div>
+        <div>
+          <h1>SAGAF</h1>
+          <span>Portal público + Sistema interno UAF</span>
+        </div>
+      </div>
+
+      <div class="side-title">Vistas</div>
+      <div class="nav">
+        <button class="active" data-view="uafView">📊 Vista interna UAF</button>
+        <button data-view="publicView">🌐 Portal sujetos obligados</button>
+      </div>
+
+      <div class="side-title">Demo rápida</div>
+      <div class="nav">
+        <button id="demoBank">🏦 Registrar ROS Banco</button>
+        <button id="demoRealEstate">🏠 Registrar ROS Inmobiliaria</button>
+      </div>
+
+      <div class="side-note">
+        Esta versión corrige el flujo: cada documento tiene su propio contenedor de carga, la cédula se valida sin exponer datos personales y la vista UAF es más limpia para análisis y priorización.
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="uafView" class="view active">
+        <div class="topbar">
+          <div>
+            <div class="eyebrow">Sistema interno de la UAF</div>
+            <h2>Bandeja de análisis de Reportes de Operaciones Sospechosas</h2>
+            <p class="lead">Vista enfocada en revisar ROS recibidos, priorizar riesgo, verificar sustentos, solicitar subsanaciones y mantener trazabilidad completa sin saturar al analista.</p>
+          </div>
+          <div class="user-chip">
+            <div class="avatar">AU</div>
+            <div>
+              <strong>Analista UAF</strong>
+              <div class="small">MFA activo · Acceso por caso</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="card kpi"><span>Nuevos ROS</span><strong>42</strong><div class="badge blue">Hoy</div></div>
+          <div class="card kpi"><span>Alto riesgo</span><strong>11</strong><div class="badge red">Atención prioritaria</div></div>
+          <div class="card kpi"><span>Con sustento incompleto</span><strong>8</strong><div class="badge amber">Subsanación</div></div>
+          <div class="card kpi"><span>Vínculos detectados</span><strong>23</strong><div class="badge purple">Validar relación</div></div>
+        </div>
+
+        <div class="uaf-layout">
+          <div class="card">
+            <div class="panel-head">
+              <div>
+                <h3>Bandeja de ROS</h3>
+                <p>Priorizada por riesgo, estado y completitud documental.</p>
+              </div>
+              <span class="badge green">Actualizado</span>
+            </div>
+
+            <div class="search-line">
+              <input placeholder="Buscar ROS, entidad, documento o caso..." />
+              <select>
+                <option>Todos</option>
+                <option>Banco</option>
+                <option>Inmobiliaria</option>
+                <option>Alto riesgo</option>
+                <option>Subsanación</option>
+              </select>
+            </div>
+
+            <div class="report-list">
+              <div class="report-item active" data-report="bank">
+                <div class="report-top">
+                  <strong>ROS-2026-000248</strong>
+                  <span class="badge red">Alto</span>
+                </div>
+                <div class="report-meta">
+                  <span>🏦 Banco Nacional Demo</span>
+                  <span>Cliente: <span class="masked">***-***-482</span></span>
+                  <span>Estado: En análisis · Sustento: 21/24 documentos</span>
+                </div>
+              </div>
+
+              <div class="report-item" data-report="realestate">
+                <div class="report-top">
+                  <strong>ROS-2026-000249</strong>
+                  <span class="badge amber">Medio</span>
+                </div>
+                <div class="report-meta">
+                  <span>🏠 Inmobiliaria Istmo Demo</span>
+                  <span>Comprador: <span class="masked">***-***-095</span></span>
+                  <span>Estado: Revisión documental · Sustento: 12/17 documentos</span>
+                </div>
+              </div>
+
+              <div class="report-item" data-report="bank2">
+                <div class="report-top">
+                  <strong>ROS-2026-000250</strong>
+                  <span class="badge purple">Vinculado</span>
+                </div>
+                <div class="report-meta">
+                  <span>🏦 Banco Nacional Demo</span>
+                  <span>Sociedad: <span class="masked">RUC ***-77</span></span>
+                  <span>Estado: Escalado · Posible beneficiario relacionado</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-head">
+              <div>
+                <h3 id="caseTitle">ROS-2026-000248 · Banco</h3>
+                <p id="caseSubtitle">Reporte recibido desde el portal público. Datos sensibles enmascarados por defecto.</p>
+              </div>
+              <span id="caseBadge" class="badge red">Riesgo alto</span>
+            </div>
+
+            <div class="tabs">
+              <button class="tab active" data-tab="summary">Resumen</button>
+              <button class="tab" data-tab="risk">Riesgo</button>
+              <button class="tab" data-tab="docs">Documentos</button>
+              <button class="tab" data-tab="audit">Auditoría</button>
+            </div>
+
+            <div id="summary" class="tab-panel active">
+              <div class="summary-grid">
+                <div class="info-box"><span>Sujeto obligado</span><strong id="sumEntity">Banco Nacional Demo</strong></div>
+                <div class="info-box"><span>Tipo</span><strong id="sumType">Banco · Persona Jurídica</strong></div>
+                <div class="info-box"><span>Cliente</span><strong id="sumClient"><span class="masked">RUC ***-77</span></strong></div>
+                <div class="info-box"><span>Monto reportado</span><strong id="sumAmount">USD 985,000</strong></div>
+                <div class="info-box"><span>Estado</span><strong id="sumState">En análisis</strong></div>
+                <div class="info-box"><span>Completitud</span><strong id="sumDocs">21 de 24 documentos</strong></div>
+              </div>
+
+              <div class="info-box" style="margin-top:12px">
+                <span>Resumen narrativo</span>
+                <strong id="sumNarrative">Movimientos incompatibles con el perfil declarado, transferencias internacionales y relación con beneficiario final reportado previamente. El expediente contiene estados de cuenta, Swift, ACH y comunicaciones internas de descarte.</strong>
+              </div>
+
+              <div class="action-row">
+                <button class="btn primary">Abrir expediente completo</button>
+                <button class="btn amber">Solicitar subsanación</button>
+                <button class="btn green">Validar análisis</button>
+                <button class="btn ghost">Ver relaciones</button>
+              </div>
+            </div>
+
+            <div id="risk" class="tab-panel">
+              <div class="progress-row">
+                <div class="progress-item">
+                  <div class="progress-head"><strong>Señales de alerta</strong><span class="badge red">Alto</span></div>
+                  <div class="bar"><div style="width:86%"></div></div>
+                </div>
+                <div class="progress-item">
+                  <div class="progress-head"><strong>Completitud documental</strong><span class="badge amber">Parcial</span></div>
+                  <div class="bar"><div style="width:72%"></div></div>
+                </div>
+                <div class="progress-item">
+                  <div class="progress-head"><strong>Coincidencias con otros ROS</strong><span class="badge purple">3 vínculos</span></div>
+                  <div class="bar"><div style="width:78%"></div></div>
+                </div>
+              </div>
+              <div class="notice" style="margin-top:14px">El sistema solo sugiere prioridad. La clasificación final debe ser validada por un analista o supervisor autorizado.</div>
+            </div>
+
+            <div id="docs" class="tab-panel">
+              <div class="doc-summary">
+                <div class="info-box"><span>Recibidos</span><strong id="receivedDocs">21</strong></div>
+                <div class="info-box"><span>Pendientes</span><strong id="pendingDocs">3</strong></div>
+                <div class="info-box"><span>Con alerta</span><strong>1</strong></div>
+              </div>
+              <div id="uafDocList" class="doc-grid"></div>
+            </div>
+
+            <div id="audit" class="tab-panel">
+              <div class="timeline">
+                <div class="event"><div class="dot"></div><div><strong>ROS recibido</strong><span>Portal público · Sujeto obligado autenticado con MFA · 17/05/2026 14:35</span></div></div>
+                <div class="event"><div class="dot"></div><div><strong>Validación automática de cédula/RUC</strong><span>Coincidencia encontrada. No se expusieron datos personales al sujeto obligado.</span></div></div>
+                <div class="event"><div class="dot"></div><div><strong>Consulta de expediente</strong><span>Analista UAF · Acceso registrado · IP y dispositivo auditados.</span></div></div>
+                <div class="event"><div class="dot"></div><div><strong>Solicitud de subsanación disponible</strong><span>El analista puede solicitar documentos faltantes sin revelar información adicional.</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="publicView" class="view">
+        <div class="portal-shell">
+          <div class="topbar">
+            <div>
+              <div class="eyebrow">Portal público hospedado por la UAF / AIG</div>
+              <h2>Registro seguro de ROS para sujetos obligados</h2>
+              <p class="lead">El sujeto obligado ingresa con credenciales institucionales y MFA. Luego registra el ROS mediante un formulario dinámico según su sector, adjuntando cada documento en su propio contenedor.</p>
+            </div>
+            <div class="user-chip">
+              <div class="avatar">SO</div>
+              <div>
+                <strong>Portal de Reporte</strong>
+                <div class="small">MFA · Evidencia individualizada</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="portal-grid">
+            <div class="card">
+              <div class="panel-head">
+                <div>
+                  <h3>Ingreso institucional</h3>
+                  <p>Simulación de autenticación segura para demostración.</p>
+                </div>
+                <span class="badge blue">MFA requerido</span>
+              </div>
+
+              <div class="notice">El portal no debe exponer información personal ya registrada. Si una cédula/RUC existe, el sistema solo informa la coincidencia y bloquea los campos del cliente.</div>
+
+              <div class="form-grid">
+                <div class="field full">
+                  <label>Tipo de sujeto obligado</label>
+                  <select id="entityType">
+                    <option value="bank">Banco</option>
+                    <option value="realestate">Inmobiliaria / Promotora</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Usuario institucional</label>
+                  <input id="loginUser" placeholder="cumplimiento@entidad.com" />
+                </div>
+                <div class="field">
+                  <label>Contraseña</label>
+                  <input type="password" placeholder="••••••••" />
+                </div>
+                <div class="field full">
+                  <label>Código MFA</label>
+                  <input id="mfaCode" placeholder="Ingrese código OTP de 6 dígitos" maxlength="6" />
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button class="btn secondary" id="fillLogin">Cargar demo</button>
+                <button class="btn primary" id="loginBtn">Validar acceso</button>
+              </div>
+
+              <div class="steps" style="margin-top:16px">
+                <div class="step"><div class="step-num">1</div><div><strong>Credenciales</strong><div class="small">Usuario institucional autorizado.</div></div></div>
+                <div class="step"><div class="step-num">2</div><div><strong>MFA</strong><div class="small">OTP o app autenticadora.</div></div></div>
+                <div class="step"><div class="step-num">3</div><div><strong>Formulario sectorial</strong><div class="small">Campos y documentos según Banco o Inmobiliaria.</div></div></div>
+              </div>
+            </div>
+
+            <div id="formCard" class="card hidden">
+              <div class="panel-head">
+                <div>
+                  <h3 id="formTitle">Formulario ROS</h3>
+                  <p id="formSubtitle">Complete los datos requeridos y adjunte la evidencia individual correspondiente.</p>
+                </div>
+                <span id="formBadge" class="badge blue">Banco</span>
+              </div>
+
+              <form class="form-grid" onsubmit="return false">
+                <div class="section-title">1. Datos generales del ROS</div>
+                <div class="field">
+                  <label>Entidad reportante</label>
+                  <input id="orgName" placeholder="Nombre de la entidad" />
+                </div>
+                <div class="field">
+                  <label>Fecha de detección</label>
+                  <input type="date" />
+                </div>
+                <div class="field">
+                  <label>Oficial de cumplimiento</label>
+                  <input placeholder="Nombre completo" />
+                </div>
+                <div class="field">
+                  <label>Correo institucional</label>
+                  <input placeholder="correo@entidad.com" />
+                </div>
+
+                <div class="section-title">2. Validación de personas relacionadas</div>
+                <div class="field" id="personTypeField">
+                  <label>Tipo de cliente</label>
+                  <select id="personType">
+                    <option value="natural">Persona Natural</option>
+                    <option value="legal">Persona Jurídica</option>
+                  </select>
+                </div>
+
+                <div id="bankPeopleSection" class="field full">
+                  <div class="helper">Para reportes bancarios, valide por separado la persona que realiza la transacción y el beneficiario. En el portal público solo se muestra el nombre para corroboración.</div>
+                  <div class="lookup-grid">
+                    <div class="lookup-card">
+                      <div class="lookup-title">Persona que realiza la transacción</div>
+                      <div class="lookup-row">
+                        <input id="actorId" placeholder="Cédula del ordenante" />
+                        <button type="button" class="btn secondary" id="verifyActor">Verificar</button>
+                      </div>
+                      <div id="actorStatus" class="client-status"></div>
+                      <div class="field full">
+                        <label>Nombre encontrado</label>
+                        <input id="actorName" readonly placeholder="Solo se mostrará el nombre si existe coincidencia" />
+                      </div>
+                    </div>
+
+                    <div class="lookup-card">
+                      <div class="lookup-title">Beneficiario</div>
+                      <div class="lookup-row">
+                        <input id="beneficiaryId" placeholder="Cédula del beneficiario" />
+                        <button type="button" class="btn secondary" id="verifyBeneficiary">Verificar</button>
+                      </div>
+                      <div id="beneficiaryStatus" class="client-status"></div>
+                      <div class="field full">
+                        <label>Nombre encontrado</label>
+                        <input id="beneficiaryName" readonly placeholder="Solo se mostrará el nombre si existe coincidencia" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="genericClientSection" class="field full hidden">
+                  <div class="helper">Para sujetos obligados no financieros se mantiene la validación del cliente principal.</div>
+                  <div class="lookup-grid single">
+                    <div class="lookup-card">
+                      <div class="lookup-title">Cliente / Comprador reportado</div>
+                      <div class="lookup-row">
+                        <input id="clientId" placeholder="Ej. 8-888-888" />
+                        <button type="button" class="btn secondary" id="verifyId" style="white-space:nowrap">Verificar</button>
+                      </div>
+                      <div id="clientStatus" class="client-status"></div>
+                      <div class="field client-field">
+                        <label>Nombre o razón social</label>
+                        <input placeholder="Solo si no existe registro previo" />
+                      </div>
+                      <div class="field client-field">
+                        <label>Actividad económica</label>
+                        <input placeholder="Actividad declarada" />
+                      </div>
+                      <div class="field client-field">
+                        <label>Nacionalidad / país de constitución</label>
+                        <input placeholder="País" />
+                      </div>
+                      <div class="field client-field">
+                        <label>Beneficiario final</label>
+                        <input placeholder="Cuando aplique" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-title">3. Información de la operación sospechosa</div>
+                <div class="field">
+                  <label>Monto aproximado</label>
+                  <input placeholder="USD 0.00" />
+                </div>
+                <div class="field">
+                  <label>Jurisdicción / ubicación</label>
+                  <input id="jurisdictionLabel" placeholder="País, provincia o ubicación" />
+                </div>
+                <div class="field">
+                  <label>Tipología / señal de alerta</label>
+                  <select>
+                    <option>Movimientos incompatibles con el perfil</option>
+                    <option>Uso de terceros o testaferros</option>
+                    <option>Procedencia de fondos no sustentada</option>
+                    <option>Operaciones fraccionadas</option>
+                    <option>Transferencias internacionales inusuales</option>
+                  </select>
+                </div>
+                <div class="field" id="bankProductField">
+                  <label>Producto bancario involucrado</label>
+                  <input placeholder="Cuenta, préstamo, tarjeta, transferencia, etc." />
+                </div>
+                <div class="field hidden" id="propertyField">
+                  <label>Bien inmueble involucrado</label>
+                  <input placeholder="Proyecto, finca, apartamento, casa, local, etc." />
+                </div>
+                <div class="field full">
+                  <label>Descripción narrativa de los hechos</label>
+                  <textarea placeholder="Explique la operación, la inusualidad detectada, las gestiones realizadas y por qué se considera sospechosa."></textarea>
+                </div>
+
+                <div class="section-title">4. Sustento documental y evidencia individualizada</div>
+                <div class="field full">
+                  <div class="doc-summary">
+                    <div class="info-box"><span>Requeridos</span><strong id="requiredCount">0</strong></div>
+                    <div class="info-box"><span>Cargados</span><strong id="uploadedCount">0</strong></div>
+                    <div class="info-box"><span>Pendientes</span><strong id="pendingCount">0</strong></div>
+                  </div>
+                  <div class="helper">Cada documento solicitado tiene su propio contenedor de carga. Así el sistema identifica exactamente qué archivo fue entregado y cuál queda pendiente.</div>
+                </div>
+
+                <div class="field full">
+                  <div id="docList" class="doc-grid"></div>
+                </div>
+
+                <div class="field full">
+                  <label>Observaciones adicionales</label>
+                  <textarea placeholder="Explique cualquier documento faltante, aclaración o información adicional relevante."></textarea>
+                </div>
+
+                <div class="field full">
+                  <label>Evidencia adicional no catalogada</label>
+                  <input type="file" multiple />
+                  <div class="helper">Para fotografías, notas, correos u otros archivos complementarios no incluidos en la plantilla.</div>
+                </div>
+
+                <div class="action-row" style="grid-column:1/-1">
+                  <button class="btn secondary" id="saveDraft">Guardar borrador</button>
+                  <button class="btn primary" id="submitRos">Enviar ROS a la UAF</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="successModal" class="success-modal">
+    <div class="modal-card">
+      <div class="modal-icon">✓</div>
+      <h3>ROS enviado correctamente</h3>
+      <p class="lead" style="margin:8px auto 18px">El reporte fue recibido por el sistema interno de la UAF. Los documentos cargados quedaron identificados individualmente para revisión y auditoría.</p>
+      <button class="btn primary" id="closeModal">Aceptar</button>
+    </div>
+  </div>
+
+  <script>
+    const docs = {
+      bankNatural: [
+        'Documentos de Apertura de la Cuenta',
+        'Contrato de Servicios Bancarios',
+        'Documento de identidad personal (Cédula y/o pasaporte)',
+        'Debida Diligencia del Cliente incluyendo actualizaciones',
+        'Perfil Transaccional del cliente',
+        'Perfil de Ingresos y Egresos declarados',
+        'Constancia de Ingresos (Declaraciones, Ficha o Talonario de Cheque)',
+        'Carta de Trabajo',
+        'Tarjeta de Firmas',
+        'Historial de Crédito',
+        'Referencias Bancarias',
+        'Referencias Comerciales y/o Profesionales',
+        'Comunicaciones internas y externas para descartar hechos inusuales',
+        'Comunicaciones enviadas y recibidas sobre gestiones de descarte'
+      ],
+      bankLegal: [
+        'Contrato de los Servicios Bancarios',
+        'Documentos de Apertura',
+        'Identificación del Representante Legal, Dignatarios, Directores, Apoderados, Accionistas y Beneficiarios Finales',
+        'Debida Diligencia de personas vinculadas a la Persona Jurídica',
+        'Perfiles de Ingresos y Egresos transaccionales',
+        'Pacto social o documento constitutivo, poderes, etc.',
+        'Aviso de Operación o documento equivalente a Licencia Comercial',
+        'Historial de Crédito',
+        'Declaraciones de Rentas obtenidas desde la apertura de la relación',
+        'Referencias Bancarias',
+        'Referencias Comerciales y/o Profesionales',
+        'Dignatarios y Directores de la Persona Jurídica y actualizaciones',
+        'Estados Financieros de la persona jurídica',
+        'Información sobre titular de acciones emitidas y custodios',
+        'Evidencia de acciones emitidas, tenedores y/o custodios',
+        'Información obtenida sobre Beneficiarios Finales',
+        'Identificación de Beneficiarios Finales',
+        'Comunicaciones de descarte de la inusualidad',
+        'Estado de cuenta de los 2 últimos años en PDF y Excel',
+        '80% de los Créditos recibidos durante el último año',
+        '80% de los Débitos realizados durante el último año',
+        'Copia de cheques con anversos y reversos',
+        'Copia completa de transferencias internacionales (mensaje Swift)',
+        'Datos de ACH enviados y/o recibidos',
+        'Volante de depósitos y retiros de cuenta'
+      ],
+      realestate: [
+        'Contrato de Promesa de Compra Venta',
+        'Debida Diligencia del Cliente Comprador',
+        'Identificación personal y/o pasaporte del Comprador',
+        'Referencias Bancarias obtenidas',
+        'Referencias Comerciales obtenidas',
+        'Carta de Trabajo',
+        'Ficha, Talonario o Declaración de Renta',
+        'Perfil transaccional del comprador (Ingresos y Egresos mensuales)',
+        'Detalle del bien objeto del contrato (Ubicación, valor y precio de venta)',
+        'Copia de la Escritura Pública de compra y venta del bien inmueble',
+        'Forma de pago del Bien Inmueble',
+        'Documento de vinculación al financiamiento bancario',
+        'Sustento de procedencia de fondos utilizados para el pago de la propiedad',
+        'Avalúos realizados a la propiedad',
+        'Recibo de pago del abono inicial',
+        'Recibos de pagos realizados para la compra del bien inmueble',
+        'Sustento de pagos realizados: cheques, ACH y transferencias internacionales'
+      ]
+    };
+
+    const sampleDocs = [
+      { name: 'Documento de identidad personal', status: 'Recibido' },
+      { name: 'Debida Diligencia del Cliente', status: 'Recibido' },
+      { name: 'Estados de cuenta PDF/Excel', status: 'Recibido' },
+      { name: 'Mensaje Swift completo', status: 'Pendiente' },
+      { name: 'Comunicaciones de descarte', status: 'Recibido' },
+      { name: 'Sustento de procedencia de fondos', status: 'Pendiente' }
+    ];
+
+    const viewButtons = document.querySelectorAll('[data-view]');
+    const views = document.querySelectorAll('.view');
+
+    viewButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        viewButtons.forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+        views.forEach(v => v.classList.remove('active'));
+        document.getElementById(button.dataset.view).classList.add('active');
+      });
+    });
+
+    const tabs = document.querySelectorAll('[data-tab]');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        panels.forEach(p => p.classList.remove('active'));
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    const reportItems = document.querySelectorAll('.report-item');
+    const caseData = {
+      bank: {
+        title: 'ROS-2026-000248 · Banco', badge: 'Riesgo alto', badgeClass: 'badge red', entity: 'Banco Nacional Demo', type: 'Banco · Persona Jurídica', client: 'RUC ***-77', amount: 'USD 985,000', state: 'En análisis', docs: '21 de 24 documentos', received: 21, pending: 3,
+        narrative: 'Movimientos incompatibles con el perfil declarado, transferencias internacionales y relación con beneficiario final reportado previamente. El expediente contiene estados de cuenta, Swift, ACH y comunicaciones internas de descarte.'
+      },
+      realestate: {
+        title: 'ROS-2026-000249 · Inmobiliaria', badge: 'Riesgo medio', badgeClass: 'badge amber', entity: 'Inmobiliaria Istmo Demo', type: 'Inmobiliaria / Promotora', client: 'Comprador ***-095', amount: 'USD 420,000', state: 'Revisión documental', docs: '12 de 17 documentos', received: 12, pending: 5,
+        narrative: 'Compra de bien inmueble con forma de pago mixta y sustento parcial de procedencia de fondos. Requiere validación de avalúo, recibos de pago y documentación bancaria asociada.'
+      },
+      bank2: {
+        title: 'ROS-2026-000250 · Banco', badge: 'Caso vinculado', badgeClass: 'badge purple', entity: 'Banco Nacional Demo', type: 'Banco · Persona Natural', client: 'Cliente ***-482', amount: 'USD 150,000', state: 'Escalado', docs: '13 de 14 documentos', received: 13, pending: 1,
+        narrative: 'Cliente relacionado con otros ROS por coincidencia parcial de beneficiario final y transferencias internacionales recibidas. El caso fue escalado para revisión supervisora.'
+      }
+    };
+
+    function setCase(key) {
+      const data = caseData[key];
+      document.getElementById('caseTitle').textContent = data.title;
+      document.getElementById('caseBadge').textContent = data.badge;
+      document.getElementById('caseBadge').className = data.badgeClass;
+      document.getElementById('sumEntity').textContent = data.entity;
+      document.getElementById('sumType').textContent = data.type;
+      document.getElementById('sumClient').innerHTML = '<span class="masked">' + data.client + '</span>';
+      document.getElementById('sumAmount').textContent = data.amount;
+      document.getElementById('sumState').textContent = data.state;
+      document.getElementById('sumDocs').textContent = data.docs;
+      document.getElementById('sumNarrative').textContent = data.narrative;
+      document.getElementById('receivedDocs').textContent = data.received;
+      document.getElementById('pendingDocs').textContent = data.pending;
+      renderUafDocs();
+    }
+
+    reportItems.forEach(item => {
+      item.addEventListener('click', () => {
+        reportItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        setCase(item.dataset.report);
+      });
+    });
+
+    function renderUafDocs() {
+      const container = document.getElementById('uafDocList');
+      container.innerHTML = '';
+      sampleDocs.forEach(doc => {
+        const received = doc.status === 'Recibido';
+        const card = document.createElement('div');
+        card.className = 'doc-card' + (received ? ' uploaded' : '');
+        card.innerHTML = `
+          <div class="doc-top">
+            <div class="doc-title">${doc.name}</div>
+            <span class="badge ${received ? 'green' : 'amber'}">${doc.status}</span>
+          </div>
+          <div class="helper">${received ? 'Disponible para revisión con auditoría.' : 'Puede solicitarse subsanación al sujeto obligado.'}</div>
+          <button class="btn ${received ? 'ghost' : 'amber'}">${received ? 'Ver documento' : 'Solicitar'}</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    const personDirectory = {
+      '8-888-888': 'María González',
+      '8-482-917': 'Carlos Pérez',
+      '8-095-221': 'Ana Morales',
+      '8-777-444': 'Roberto Castillo',
+      'PE-8891': 'Luis Herrera',
+      'RUC-77': 'Inversiones del Istmo, S.A.'
+    };
+
+    const entityType = document.getElementById('entityType');
+    const personType = document.getElementById('personType');
+    const personTypeField = document.getElementById('personTypeField');
+    const formCard = document.getElementById('formCard');
+    const formTitle = document.getElementById('formTitle');
+    const formBadge = document.getElementById('formBadge');
+    const orgName = document.getElementById('orgName');
+    const docList = document.getElementById('docList');
+    const requiredCount = document.getElementById('requiredCount');
+    const uploadedCount = document.getElementById('uploadedCount');
+    const pendingCount = document.getElementById('pendingCount');
+    const bankProductField = document.getElementById('bankProductField');
+    const propertyField = document.getElementById('propertyField');
+    const jurisdictionLabel = document.getElementById('jurisdictionLabel');
+    const bankPeopleSection = document.getElementById('bankPeopleSection');
+    const genericClientSection = document.getElementById('genericClientSection');
+    const clientStatus = document.getElementById('clientStatus');
+    const clientFields = document.querySelectorAll('.client-field input');
+    const actorStatus = document.getElementById('actorStatus');
+    const beneficiaryStatus = document.getElementById('beneficiaryStatus');
+    const actorName = document.getElementById('actorName');
+    const beneficiaryName = document.getElementById('beneficiaryName');
+
+    function currentDocList() {
+      if (entityType.value === 'realestate') return docs.realestate;
+      return personType.value === 'legal' ? docs.bankLegal : docs.bankNatural;
+    }
+
+    function updateDocCounters() {
+      const total = currentDocList().length;
+      const uploaded = document.querySelectorAll('#docList .doc-card.uploaded').length;
+      requiredCount.textContent = total;
+      uploadedCount.textContent = uploaded;
+      pendingCount.textContent = total - uploaded;
+    }
+
+    function renderDocumentUploadCards() {
+      const list = currentDocList();
+      docList.innerHTML = '';
+      list.forEach((name, index) => {
+        const card = document.createElement('div');
+        card.className = 'doc-card';
+        card.innerHTML = `
+          <div class="doc-top">
+            <div class="doc-title">${index + 1}. ${name}</div>
+            <span class="badge amber status">Pendiente</span>
+          </div>
+          <input type="file" data-doc="${index}" />
+          <div class="file-name"></div>
+          <div class="helper">Carga individual para identificar este sustento de forma separada.</div>
+        `;
+        const input = card.querySelector('input[type="file"]');
+        input.addEventListener('change', () => {
+          const status = card.querySelector('.status');
+          const fileName = card.querySelector('.file-name');
+          if (input.files.length > 0) {
+            card.classList.add('uploaded');
+            status.className = 'badge green status';
+            status.textContent = 'Cargado';
+            fileName.textContent = 'Archivo: ' + input.files[0].name;
+          } else {
+            card.classList.remove('uploaded');
+            status.className = 'badge amber status';
+            status.textContent = 'Pendiente';
+            fileName.textContent = '';
+          }
+          updateDocCounters();
+        });
+        docList.appendChild(card);
+      });
+      updateDocCounters();
+    }
+
+    function configureForm() {
+      const isBank = entityType.value === 'bank';
+      formTitle.textContent = isBank ? 'Formulario ROS · Banco' : 'Formulario ROS · Inmobiliaria / Promotora';
+      formBadge.textContent = isBank ? 'Banco' : 'Inmobiliaria';
+      formBadge.className = isBank ? 'badge blue' : 'badge green';
+      orgName.value = isBank ? 'Banco Nacional Demo' : 'Inmobiliaria Istmo Demo';
+      personTypeField.classList.toggle('hidden', !isBank);
+      bankPeopleSection.classList.toggle('hidden', !isBank);
+      genericClientSection.classList.toggle('hidden', isBank);
+      bankProductField.classList.toggle('hidden', !isBank);
+      propertyField.classList.toggle('hidden', isBank);
+      jurisdictionLabel.placeholder = isBank ? 'País / jurisdicción relacionada' : 'Ubicación del bien inmueble';
+      renderDocumentUploadCards();
+      resetClientValidation();
+    }
+
+    function clearLookup(statusEl, nameEl, emptyMessage='') {
+      statusEl.className = 'client-status';
+      statusEl.textContent = '';
+      if (nameEl) nameEl.value = emptyMessage;
+    }
+
+    function resetClientValidation() {
+      clientStatus.className = 'client-status';
+      clientStatus.textContent = '';
+      clientFields.forEach(input => {
+        input.disabled = false;
+        input.value = '';
+        input.placeholder = 'Complete este campo';
+      });
+      clearLookup(actorStatus, actorName, '');
+      clearLookup(beneficiaryStatus, beneficiaryName, '');
+      document.getElementById('clientId').value = '';
+      document.getElementById('actorId').value = '';
+      document.getElementById('beneficiaryId').value = '';
+      actorName.placeholder = 'Solo se mostrará el nombre si existe coincidencia';
+      beneficiaryName.placeholder = 'Solo se mostrará el nombre si existe coincidencia';
+    }
+
+    function lookupNameById(raw) {
+      const value = raw.trim();
+      if (!value) return null;
+      if (personDirectory[value]) return personDirectory[value];
+      if (/482/.test(value)) return 'Carlos Pérez';
+      if (/095/.test(value)) return 'Ana Morales';
+      if (/888/.test(value)) return 'María González';
+      if (/77/.test(value)) return 'Inversiones del Istmo, S.A.';
+      return null;
+    }
+
+    function verifyBankParty(inputId, statusId, nameId, roleLabel) {
+      const value = document.getElementById(inputId).value.trim();
+      const statusEl = document.getElementById(statusId);
+      const nameEl = document.getElementById(nameId);
+
+      if (!value) {
+        statusEl.className = 'client-status warning';
+        statusEl.textContent = `Debe introducir la cédula del ${roleLabel.toLowerCase()} para verificar.`;
+        nameEl.value = '';
+        return;
+      }
+
+      const foundName = lookupNameById(value);
+      if (foundName) {
+        statusEl.className = 'client-status found';
+        statusEl.textContent = `Coincidencia encontrada. Por privacidad, únicamente se muestra el nombre del ${roleLabel.toLowerCase()} para corroboración.`;
+        nameEl.value = foundName;
+      } else {
+        statusEl.className = 'client-status warning';
+        statusEl.textContent = `No se encontró coincidencia para el ${roleLabel.toLowerCase()}. La UAF validará la identidad con la documentación adjunta.`;
+        nameEl.value = '';
+      }
+    }
+
+    entityType.addEventListener('change', configureForm);
+    personType.addEventListener('change', renderDocumentUploadCards);
+    document.getElementById('verifyActor').addEventListener('click', () => verifyBankParty('actorId', 'actorStatus', 'actorName', 'Ordenante'));
+    document.getElementById('verifyBeneficiary').addEventListener('click', () => verifyBankParty('beneficiaryId', 'beneficiaryStatus', 'beneficiaryName', 'Beneficiario'));
+
+    document.getElementById('fillLogin').addEventListener('click', () => {
+      document.getElementById('loginUser').value = entityType.value === 'bank' ? 'cumplimiento@bancodemo.com' : 'cumplimiento@inmobiliariademo.com';
+      document.getElementById('mfaCode').value = '123456';
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      formCard.classList.remove('hidden');
+      configureForm();
+      formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.getElementById('verifyId').addEventListener('click', () => {
+      const value = document.getElementById('clientId').value.trim();
+      if (!value) {
+        clientStatus.className = 'client-status exists';
+        clientStatus.textContent = 'Debe introducir una cédula, pasaporte o RUC para verificar.';
+        return;
+      }
+
+      const exists = /482|095|888|77/.test(value);
+      if (exists) {
+        clientStatus.className = 'client-status exists';
+        clientStatus.textContent = 'Coincidencia encontrada: este identificador ya existe en registros internos. Por seguridad, no se muestran datos personales en el portal público. Los campos del cliente quedan bloqueados y la UAF realizará la vinculación internamente.';
+        clientFields.forEach(input => {
+          input.disabled = true;
+          input.value = '';
+          input.placeholder = 'Bloqueado por coincidencia existente';
+        });
+      } else {
+        clientStatus.className = 'client-status new';
+        clientStatus.textContent = 'No se encontró coincidencia. Puede completar los datos mínimos del cliente reportado.';
+        clientFields.forEach(input => {
+          input.disabled = false;
+          input.placeholder = 'Complete este campo';
+        });
+      }
+    });
+
+    document.getElementById('saveDraft').addEventListener('click', () => {
+      alert('Borrador guardado en el prototipo. En producción quedaría asociado al usuario institucional autenticado.');
+    });
+
+    document.getElementById('submitRos').addEventListener('click', () => {
+      document.getElementById('successModal').classList.add('show');
+    });
+
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('successModal').classList.remove('show');
+    });
+
+    function goPublic(type) {
+      viewButtons.forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-view="publicView"]').classList.add('active');
+      views.forEach(v => v.classList.remove('active'));
+      document.getElementById('publicView').classList.add('active');
+      entityType.value = type;
+      formCard.classList.remove('hidden');
+      configureForm();
+    }
+
+    document.getElementById('demoBank').addEventListener('click', () => goPublic('bank'));
+    document.getElementById('demoRealEstate').addEventListener('click', () => goPublic('realestate'));
+
+    configureForm();
+    renderUafDocs();
+  </script>
+</body>
+</html>
