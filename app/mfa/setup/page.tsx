@@ -10,6 +10,9 @@ export default async function MfaSetupPage() {
 
   return (
     <div className="auth-shell">
+      <div style={{ position: 'absolute', top: 6, left: 6 }}>
+        <SignOutLink />
+      </div>
       <div className="auth-card" style={{ maxWidth: 520 }}>
         <div className="brand" style={{ color: '#102a43', marginBottom: 18 }}>
           <div className="brand-icon">SG</div>
@@ -27,7 +30,6 @@ export default async function MfaSetupPage() {
         </p>
 
         <MfaSetupClient userEmail={session.user.email ?? ''} />
-        <SignOutLink />
       </div>
     </div>
   );
