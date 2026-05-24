@@ -197,7 +197,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
       </div>
 
       <div className="notice" style={{ marginTop: 18 }}>
-        💡 <strong>Privacidad por diseño</strong>: estos reportes priorizan datos agregados.
+        <strong>Privacidad por diseño</strong>: estos reportes priorizan datos agregados.
         Las exportaciones requieren rol Supervisor y quedan auditadas (CU-04 RE-02 / RE-03).
       </div>
     </>

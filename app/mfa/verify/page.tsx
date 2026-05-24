@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { MfaVerifyForm } from './MfaVerifyForm';
 import { SignOutLink } from '@/components/SignOutLink';
+import { buildQrDataUrl } from '@/lib/totp';
 
 export default async function MfaVerifyPage() {
   const session = await auth();
@@ -10,7 +11,7 @@ export default async function MfaVerifyPage() {
   if (session.user.mfaVerified) redirect('/');
 
   const row = db
-    .prepare<[string], { mfa_activo: number }>('SELECT mfa_activo FROM usuario WHERE id = ?')
+    .prepare<[string], { mfa_activo: number; mfa_secret: string | null }>('SELECT mfa_activo, mfa_secret FROM usuario WHERE id = ?')
     .get(session.user.id);
 
   // Primer login: si MFA no está activo, ofrecer enrolamiento
@@ -18,9 +19,17 @@ export default async function MfaVerifyPage() {
     redirect('/mfa/setup');
   }
 
+  // Generar QR y secret para mostrar en la verificación
+  let qr: string | null = null;
+  let secret: string | null = null;
+  if (row.mfa_secret) {
+    secret = row.mfa_secret;
+    qr = await buildQrDataUrl(session.user.email ?? 'sagaf', row.mfa_secret);
+  }
+
   return (
     <div className="auth-shell">
-      <div className="auth-card">
+      <div className="auth-card" style={{ maxWidth: 520 }}>
         <div className="brand" style={{ color: '#102a43', marginBottom: 18 }}>
           <div className="brand-icon">SG</div>
           <div>
@@ -35,7 +44,7 @@ export default async function MfaVerifyPage() {
           (Google Authenticator, Microsoft Authenticator, Authy).
         </p>
 
-        <MfaVerifyForm />
+        <MfaVerifyForm qr={qr} secret={secret} userEmail={session.user.email ?? ''} />
         <SignOutLink />
       </div>
     </div>

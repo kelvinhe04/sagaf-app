@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { Sidebar, type NavItem } from '@/components/Sidebar';
+import { Home, ClipboardList, FilePlus, RefreshCw } from 'lucide-react';
 
 const navItems: NavItem[] = [
-  { href: '/portal',                label: 'Inicio',            icon: '🏠' },
-  { href: '/portal/ros',            label: 'Mis ROS',           icon: '📋' },
-  { href: '/portal/ros/nuevo',      label: 'Registrar ROS',     icon: '➕' },
-  { href: '/portal/subsanaciones',  label: 'Subsanaciones',     icon: '🔁' },
+  { href: '/portal',                label: 'Inicio',            icon: <Home size={16} /> },
+  { href: '/portal/ros',            label: 'Mis ROS',           icon: <ClipboardList size={16} /> },
+  { href: '/portal/ros/nuevo',      label: 'Registrar ROS',     icon: <FilePlus size={16} /> },
+  { href: '/portal/subsanaciones',  label: 'Subsanaciones',     icon: <RefreshCw size={16} /> },
 ];
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {

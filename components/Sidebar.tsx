@@ -2,12 +2,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { LogOut } from 'lucide-react';
 import type { Role } from '@/types';
+import type { ReactNode } from 'react';
 
 export interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: ReactNode;
 }
 
 interface Props {
@@ -43,7 +45,8 @@ export function Sidebar({ role, userName, navItems, note }: Props) {
           const active = path === item.href || (item.href !== '/' && path.startsWith(item.href));
           return (
             <Link key={item.href} href={item.href} className={active ? 'active' : ''}>
-              <span style={{ marginRight: 4 }}>{item.icon}</span> {item.label}
+              <span style={{ display: 'flex', alignItems: 'center', marginRight: 4 }}>{item.icon}</span>
+              {item.label}
             </Link>
           );
         })}
@@ -52,7 +55,8 @@ export function Sidebar({ role, userName, navItems, note }: Props) {
       <div className="side-title">Sesión</div>
       <div className="nav">
         <button type="button" onClick={() => signOut({ callbackUrl: '/login' })}>
-          🔐 Cerrar sesión
+          <span style={{ display: 'flex', alignItems: 'center', marginRight: 4 }}><LogOut size={16} /></span>
+          Cerrar sesión
         </button>
       </div>
 

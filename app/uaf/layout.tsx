@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { Sidebar, type NavItem } from '@/components/Sidebar';
+import { Inbox, Link2, BarChart2, ShieldCheck } from 'lucide-react';
 
 const navItems: NavItem[] = [
-  { href: '/uaf',           label: 'Bandeja de ROS',        icon: '📊' },
-  { href: '/uaf/vinculos',  label: 'Vínculos detectados',   icon: '🔗' },
-  { href: '/uaf/reportes',  label: 'Reportes e inteligencia', icon: '📈' },
-  { href: '/uaf/auditoria', label: 'Auditoría del sistema', icon: '🛡️' },
+  { href: '/uaf',           label: 'Bandeja de ROS',          icon: <Inbox size={16} /> },
+  { href: '/uaf/vinculos',  label: 'Vínculos detectados',     icon: <Link2 size={16} /> },
+  { href: '/uaf/reportes',  label: 'Reportes e inteligencia', icon: <BarChart2 size={16} /> },
+  { href: '/uaf/auditoria', label: 'Auditoría del sistema',   icon: <ShieldCheck size={16} /> },
 ];
 
 export default async function UafLayout({ children }: { children: React.ReactNode }) {

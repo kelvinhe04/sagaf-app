@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { Sidebar, type NavItem } from '@/components/Sidebar';
+import { ShieldCheck } from 'lucide-react';
 
 const navItems: NavItem[] = [
-  { href: '/auditor', label: 'Auditoría',  icon: '🛡️' },
+  { href: '/auditor', label: 'Auditoría', icon: <ShieldCheck size={16} /> },
 ];
 
 export default async function AuditorLayout({ children }: { children: React.ReactNode }) {

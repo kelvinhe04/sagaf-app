@@ -77,23 +77,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             </div>
             <div className="field full">
               <button className="btn primary" type="submit" style={{ width: '100%' }}>
-                Continuar con MFA →
+                Continuar con MFA
               </button>
             </div>
           </div>
         </form>
 
-        <div className="notice" style={{ marginTop: 16 }}>
-          <strong>Cuentas demo (password: <code>password123</code>):</strong>
-          <ul style={{ margin: '8px 0 0 18px', padding: 0, fontSize: 12.5, lineHeight: 1.7 }}>
-            <li><code>cumplimiento@bancodemo.com</code> — Sujeto Obligado · Banco</li>
-            <li><code>cumplimiento@inmobiliariademo.com</code> — Sujeto Obligado · Inmobiliaria</li>
-            <li><code>analista@uaf.gob.pa</code> — Analista UAF</li>
-            <li><code>supervisor@uaf.gob.pa</code> — Supervisor UAF</li>
-            <li><code>auditor@uaf.gob.pa</code> — Auditor</li>
-            <li><code>admin@uaf.gob.pa</code> — Administrador</li>
-          </ul>
-        </div>
       </div>
     </div>
   );

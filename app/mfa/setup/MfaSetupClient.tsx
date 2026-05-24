@@ -1,13 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 
 interface Props { userEmail: string }
 
 export function MfaSetupClient({ userEmail }: Props) {
-  const router = useRouter();
-  const { update } = useSession();
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [code, setCode] = useState('');
@@ -44,9 +40,8 @@ export function MfaSetupClient({ userEmail }: Props) {
         setError(data.error ?? 'Código inválido');
         return;
       }
-      await update({ mfaVerified: true });
-      router.replace('/');
-      router.refresh();
+      // El JWT ya fue actualizado por /api/mfa/verify con mfaVerified=true
+      window.location.href = '/';
     } finally {
       setLoading(false);
     }

@@ -216,7 +216,7 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
 
         <div className="section-title">2. Validación de personas relacionadas</div>
         <div className="notice" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
-          🛡️ <strong>Privacidad (Ley 81/2019)</strong>: si una cédula/RUC ya existe en nuestros registros,
+          <strong>Privacidad (Ley 81/2019)</strong>: si una cédula/RUC ya existe en nuestros registros,
           solo verás el <strong>nombre</strong> para corroboración. No se autocompletan datos sensibles.
         </div>
 

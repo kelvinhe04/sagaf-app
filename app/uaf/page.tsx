@@ -5,6 +5,7 @@ import { TopBar } from '@/components/TopBar';
 import { KpiCard } from '@/components/KpiCard';
 import { Badge, riskTone, estadoTone, estadoLabel } from '@/components/Badge';
 import { FilterBar } from './FilterBar';
+import { Landmark, Home, MapPin } from 'lucide-react';
 
 interface SearchParams {
   q?: string;
@@ -128,7 +129,10 @@ export default async function UafBandeja({ searchParams }: { searchParams: Promi
                   </div>
                 </div>
                 <div className="report-meta">
-                  <span>{r.sujeto_tipo === 'bank' ? '🏦' : r.sujeto_tipo === 'realestate' ? '🏠' : '📌'} {r.sujeto_nombre}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    {r.sujeto_tipo === 'bank' ? <Landmark size={13} /> : r.sujeto_tipo === 'realestate' ? <Home size={13} /> : <MapPin size={13} />}
+                    {r.sujeto_nombre}
+                  </span>
                   <span>Cliente: <span className="masked">{r.cliente_enmascarado}</span></span>
                   <span>Sustento: {r.doc_cargados}/{r.doc_total} documentos · USD {r.monto.toLocaleString('en-US')}</span>
                 </div>

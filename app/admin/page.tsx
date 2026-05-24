@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { KpiCard } from '@/components/KpiCard';
+import { Users, Building2, FileText } from 'lucide-react';
 
 export default async function AdminHome() {
   const session = await auth();
@@ -35,9 +36,9 @@ export default async function AdminHome() {
         <h3 style={{ margin: 0 }}>Acciones rápidas</h3>
         <p className="small" style={{ marginBottom: 14 }}>Atajos a las áreas administrativas más usadas.</p>
         <div className="action-row">
-          <a href="/admin/usuarios"          className="btn primary">👥 Gestionar usuarios</a>
-          <a href="/admin/sujetos-obligados" className="btn teal">🏢 Gestionar sujetos obligados</a>
-          <a href="/admin/plantillas"        className="btn ghost">📄 Ver plantillas ROS</a>
+          <a href="/admin/usuarios"          className="btn primary"><Users size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />Gestionar usuarios</a>
+          <a href="/admin/sujetos-obligados" className="btn teal"><Building2 size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />Gestionar sujetos obligados</a>
+          <a href="/admin/plantillas"        className="btn ghost"><FileText size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />Ver plantillas ROS</a>
         </div>
       </div>
     </>

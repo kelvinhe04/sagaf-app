@@ -7,17 +7,27 @@ import { db } from '@/lib/db';
 import { generateSecret, buildQrDataUrl } from '@/lib/totp';
 import { audit, extractRequestContext } from '@/lib/audit';
 
+interface UserRow { mfa_secret: string | null }
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
 
-  const secret = generateSecret();
-  db.prepare('UPDATE usuario SET mfa_secret = ?, mfa_activo = 0 WHERE id = ?').run(
-    secret,
-    session.user.id,
-  );
+  // Reutiliza el secret existente si ya tiene uno (permite re-escanear sin perder el anterior)
+  const existing = db.prepare<[string], UserRow>(
+    'SELECT mfa_secret FROM usuario WHERE id = ?',
+  ).get(session.user.id);
+
+  const secret = existing?.mfa_secret ?? generateSecret();
+
+  if (!existing?.mfa_secret) {
+    db.prepare('UPDATE usuario SET mfa_secret = ?, mfa_activo = 0 WHERE id = ?').run(
+      secret,
+      session.user.id,
+    );
+  }
 
   const qr = await buildQrDataUrl(session.user.email ?? 'sagaf', secret);
 
