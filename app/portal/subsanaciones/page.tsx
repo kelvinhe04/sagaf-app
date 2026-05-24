@@ -35,7 +35,7 @@ export default async function SubsanacionesPage() {
   return (
     <>
       <TopBar
-        eyebrow="CU-08 · Subsanación documental"
+        eyebrow="Subsanación documental"
         title="Solicitudes de subsanación de la UAF"
         description="Atienda las observaciones de la UAF sin crear un ROS nuevo. Suba el archivo corregido desde el detalle del ROS asociado."
         userInitials={userInitials}

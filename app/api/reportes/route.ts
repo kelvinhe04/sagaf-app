@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       usuario_id: session.user.id, usuario_correo: session.user.email, rol: session.user.rol,
       criticidad: 'alta',
     });
-    return NextResponse.json({ error: 'La exportación está reservada al rol Supervisor (RE-02)' }, { status: 403 });
+    return NextResponse.json({ error: 'La exportación está reservada al rol Supervisor' }, { status: 403 });
   }
 
   const url = new URL(req.url);

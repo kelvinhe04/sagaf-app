@@ -40,9 +40,9 @@ export default async function UsuariosAdmin() {
   return (
     <>
       <TopBar
-        eyebrow="CU-05 · Control de acceso y gestión de roles"
+        eyebrow="Control de acceso y roles"
         title="Gestión de usuarios"
-        description="Crea, actualiza o desactiva usuarios. MFA es obligatorio para todos los perfiles (RNF-01). Los sujetos obligados solo gestionan sus propios reportes (RE-02)."
+        description="Crea, actualiza o desactiva usuarios. MFA es obligatorio para todos los perfiles. Los sujetos obligados solo gestionan sus propios reportes."
         userInitials={userInitials}
         userName={session!.user.name ?? ''}
         userBadge="Administrador · MFA activo"
@@ -89,7 +89,7 @@ export default async function UsuariosAdmin() {
 
       <div className="card" style={{ marginTop: 18 }}>
         <h3 style={{ margin: 0 }}>Crear nuevo usuario</h3>
-        <p className="small" style={{ marginBottom: 14 }}>El usuario deberá enrolar MFA en su primer ingreso (RNF-01).</p>
+        <p className="small" style={{ marginBottom: 14 }}>El usuario deberá enrolar su autenticador de dos factores en su primer ingreso.</p>
         <NuevoUsuarioForm sujetos={sujetos} roles={roles} />
       </div>
     </>

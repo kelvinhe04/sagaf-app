@@ -19,7 +19,7 @@ export default async function AdminHome() {
       <TopBar
         eyebrow="Administración SAGAF"
         title="Panel general"
-        description="Gestiona usuarios, roles, sujetos obligados y plantillas. Tu acceso está limitado por RNF-02: NO accedes al contenido sensible de ROS."
+        description="Gestiona usuarios, roles, sujetos obligados y plantillas. El rol de administrador no tiene acceso al contenido sensible de los ROS."
         userInitials={userInitials}
         userName={session!.user.name ?? ''}
         userBadge="Administrador · MFA activo"

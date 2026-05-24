@@ -100,7 +100,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
   return (
     <>
       <TopBar
-        eyebrow="CU-04 · Reportes e inteligencia financiera"
+        eyebrow="Reportes e inteligencia financiera"
         title="Reportes operativos y estratégicos"
         description="Datos agregados, anonimizados cuando no requieren identificación individual. La exportación queda auditada."
         userInitials={userInitials}
@@ -150,7 +150,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
       <div className="uaf-layout" style={{ marginTop: 18 }}>
         <div className="card">
           <h3 style={{ margin: 0 }}>Distribución por nivel de riesgo</h3>
-          <p className="small" style={{ marginBottom: 12 }}>Reporte estadístico · datos agregados (RE-01).</p>
+          <p className="small" style={{ marginBottom: 12 }}>Reporte estadístico · datos agregados.</p>
           <div className="summary-grid">
             {porRiesgo.map((r) => (
               <InfoBox key={r.nivel} label={r.nivel} value={r.total} />
@@ -179,7 +179,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
 
       <div className="card" style={{ marginTop: 18 }}>
         <div className="panel-head">
-          <div><h3>Reporte de completitud documental</h3><p>RNF-05 · permite identificar requisitos con mayor faltante.</p></div>
+          <div><h3>Reporte de completitud documental</h3><p>Permite identificar requisitos documentales con mayor faltante.</p></div>
         </div>
         <table className="table">
           <thead><tr><th>Documento requerido</th><th>Esperados</th><th>Cargados</th><th>Faltantes</th></tr></thead>
@@ -198,7 +198,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
 
       <div className="notice" style={{ marginTop: 18 }}>
         <strong>Privacidad por diseño</strong>: estos reportes priorizan datos agregados.
-        Las exportaciones requieren rol Supervisor y quedan auditadas (CU-04 RE-02 / RE-03).
+        Las exportaciones requieren rol Supervisor y quedan registradas en el log de auditoría.
       </div>
     </>
   );

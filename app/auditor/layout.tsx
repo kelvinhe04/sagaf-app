@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { Sidebar, type NavItem } from '@/components/Sidebar';
+import { AppShell, type NavItem } from '@/components/AppShell';
 import { ShieldCheck } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -13,14 +13,13 @@ export default async function AuditorLayout({ children }: { children: React.Reac
   if (session.user.rol !== 'auditor') redirect('/');
 
   return (
-    <div className="app">
-      <Sidebar
-        role="auditor"
-        userName={session.user.name ?? 'Auditor'}
-        navItems={navItems}
-        note="Acceso solo lectura al log de auditoría. No tienes acceso al contenido de los ROS (RNF-02). Cada consulta queda registrada como evento."
-      />
-      <main className="main">{children}</main>
-    </div>
+    <AppShell
+      role="auditor"
+      userName={session.user.name ?? 'Auditor'}
+      navItems={navItems}
+      note="Acceso de solo lectura al log de auditoría. No tienes acceso al contenido de los ROS. Cada consulta queda registrada como evento."
+    >
+      {children}
+    </AppShell>
   );
 }

@@ -39,7 +39,7 @@ export default async function UafAuditoriaPage({ searchParams }: { searchParams:
   return (
     <>
       <TopBar
-        eyebrow="CU-03 · Trazabilidad y auditoría"
+        eyebrow="Trazabilidad y auditoría"
         title="Historial de auditoría del sistema"
         description="Log inmutable de acciones realizadas en SAGAF. La consulta a este log también queda registrada."
         userInitials={userInitials}

@@ -34,9 +34,9 @@ export default async function VinculosPage() {
   return (
     <>
       <TopBar
-        eyebrow="CU-07 · Vinculación intersectorial"
+        eyebrow="Vinculación intersectorial"
         title="Vínculos detectados entre ROS"
-        description="Coincidencias entre ROS de distintos sujetos obligados (personas, beneficiarios, sociedades, cuentas, inmuebles…). Requieren validación humana (RE-01)."
+        description="Coincidencias entre ROS de distintos sujetos obligados (personas, beneficiarios, sociedades, cuentas, inmuebles…). Requieren validación por un analista antes de consolidarse."
         userInitials={userInitials}
         userName={session!.user.name ?? ''}
         userBadge="MFA activo"

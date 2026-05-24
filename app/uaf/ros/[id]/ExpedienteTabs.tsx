@@ -53,7 +53,7 @@ export function RosExpedienteTabs({
 
   async function clasificar(e: React.FormEvent) {
     e.preventDefault();
-    if (riesgoJustif.trim().length < 15) { alert('La justificación debe tener al menos 15 caracteres (CU-02 RE-01).'); return; }
+    if (riesgoJustif.trim().length < 15) { alert('La justificación debe tener al menos 15 caracteres.'); return; }
     setBusy(true);
     try {
       const res = await fetch(`/api/ros/${rosId}/riesgo`, {
@@ -160,7 +160,7 @@ export function RosExpedienteTabs({
           {canClassify && (
             <div className="card" style={{ marginTop: 14, padding: 14 }}>
               <h3 style={{ margin: 0, fontSize: 16 }}>Clasificar riesgo</h3>
-              <p className="small" style={{ marginBottom: 12 }}>RF-02 · La justificación es obligatoria y queda auditada.</p>
+              <p className="small" style={{ marginBottom: 12 }}>La justificación es obligatoria y queda registrada en auditoría.</p>
               <form onSubmit={clasificar}>
                 <div className="form-grid">
                   <div className="field">
@@ -261,7 +261,7 @@ export function RosExpedienteTabs({
 
           <div className="card" style={{ marginTop: 14, padding: 14 }}>
             <h3 style={{ margin: 0, fontSize: 16 }}>Solicitar subsanación al sujeto obligado</h3>
-            <p className="small" style={{ marginBottom: 12 }}>CU-08 · Permite que el sujeto obligado corrija sin crear un ROS nuevo.</p>
+            <p className="small" style={{ marginBottom: 12 }}>Permite que el sujeto obligado corrija los documentos sin necesidad de crear un nuevo ROS.</p>
 
             <form onSubmit={solicitarSubsanacion}>
               <div className="form-grid">
@@ -326,7 +326,7 @@ export function RosExpedienteTabs({
             </div>
           )}
           <div className="notice" style={{ marginTop: 12 }}>
-            CU-07 · Las vinculaciones detectadas automáticamente <strong>no se consolidan sin revisión humana</strong> (RE-01).
+            Las vinculaciones detectadas automáticamente <strong>no se consolidan sin revisión y validación humana</strong>.
           </div>
         </>
       )}
@@ -339,8 +339,7 @@ export function RosExpedienteTabs({
             <Timeline events={auditEvents} />
           )}
           <div className="notice" style={{ marginTop: 12 }}>
-            El log de auditoría es <strong>inmutable</strong> (trigger ABORT en BD · RF-03 RE-01).
-            La hora la genera el servidor, no el navegador (mitiga DEF-30).
+            El log de auditoría es <strong>inmutable</strong>. La hora de cada evento es generada por el servidor.
           </div>
         </>
       )}

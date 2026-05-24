@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
+import { BackButton } from '@/components/BackButton';
 import { NuevoRosForm } from './NuevoRosForm';
 
 interface PlantillaRow {
@@ -62,12 +63,13 @@ export default async function NuevoRosPage() {
   return (
     <>
       <TopBar
-        eyebrow="CU-01 · Recepción y registro"
+        eyebrow="Recepción y registro"
         title="Registrar nuevo Reporte de Operación Sospechosa"
-        description="Complete el formulario dinámico según el tipo de operación. Cada documento solicitado tiene su propio contenedor de carga (RF-07). La verificación de identidad muestra únicamente el nombre para corroboración (RF-06)."
+        description="Complete el formulario según el tipo de operación. Cada documento tiene su propio contenedor de carga. La verificación de identidad muestra únicamente el nombre para corroboración."
         userInitials={userInitials}
         userName={session.user.name ?? ''}
         userBadge={`${so.nombre} · MFA activo`}
+        right={<BackButton href="/portal" label="Inicio" />}
       />
 
       <NuevoRosForm

@@ -79,7 +79,7 @@ export default async function PortalHome() {
         <div className="panel-head">
           <div>
             <h3>Mis Reportes de Operaciones Sospechosas</h3>
-            <p>Únicamente visualizas los ROS de tu entidad (RF-05 / RNF-02).</p>
+            <p>Únicamente visualizas los ROS de tu entidad.</p>
           </div>
           <Link href="/portal/ros/nuevo" className="btn primary">+ Registrar nuevo ROS</Link>
         </div>

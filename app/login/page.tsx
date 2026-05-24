@@ -43,7 +43,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
         <h1 style={{ fontSize: 22, marginBottom: 4 }}>Acceso institucional</h1>
         <p className="lead" style={{ marginBottom: 18 }}>
-          Ingrese con sus credenciales. La autenticación se completa con un código MFA (Ley 23/2015, RNF-01).
+          Ingrese con sus credenciales. La autenticación se completa con un código de verificación de dos factores (MFA).
         </p>
 
         {error && (

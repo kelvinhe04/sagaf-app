@@ -5,6 +5,7 @@ import { TopBar } from '@/components/TopBar';
 import { Badge, riskTone, estadoTone, estadoLabel } from '@/components/Badge';
 import { InfoBox } from '@/components/InfoBox';
 import { Notice } from '@/components/Notice';
+import { BackButton } from '@/components/BackButton';
 import { ProgressList } from '@/components/ProgressBar';
 import { Timeline } from '@/components/Timeline';
 import { RosExpedienteTabs } from './ExpedienteTabs';
@@ -143,7 +144,8 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
         userName={session.user.name ?? ''}
         userBadge={`${session.user.rol === 'supervisor' ? 'Supervisor' : 'Analista'} · MFA activo`}
         right={
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <BackButton href="/uaf" label="Bandeja" />
             {riesgoActual && <Badge tone={riskTone(riesgoActual.nivel)}>{`Riesgo ${riesgoActual.nivel}`}</Badge>}
             <Badge tone={estadoTone(ros.estado)}>{estadoLabel(ros.estado)}</Badge>
           </div>
@@ -172,8 +174,8 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
             </div>
 
             <div className="card" style={{ marginTop: 12, padding: 14 }}>
-              <h3 style={{ margin: 0, fontSize: 16 }}>Partes involucradas (RF-06)</h3>
-              <p className="small" style={{ marginBottom: 12 }}>Identificadores enmascarados. Los datos completos solo se accesibilizan con permisos UAF (RNF-02).</p>
+              <h3 style={{ margin: 0, fontSize: 16 }}>Partes involucradas</h3>
+              <p className="small" style={{ marginBottom: 12 }}>Identificadores enmascarados por privacidad. Los datos completos requieren permisos de acceso UAF.</p>
               <div className="summary-grid">
                 {partes.map((p) => (
                   <InfoBox key={p.id} label={p.rol_en_operacion.replace(/_/g, ' ')}
@@ -196,13 +198,13 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
               ]}
             />
             <Notice style={{ marginTop: 14 }}>
-              El sistema solo <strong>sugiere</strong> prioridad. La clasificación final debe ser validada por un analista o supervisor autorizado (CU-02 RE-03).
+              El sistema solo <strong>sugiere</strong> prioridad. La clasificación final debe ser validada por un analista o supervisor autorizado.
             </Notice>
 
             {riesgos.length > 0 && (
               <div className="card" style={{ marginTop: 14, padding: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 16 }}>Historial de clasificación</h3>
-                <p className="small" style={{ marginBottom: 12 }}>Cada cambio queda registrado con justificación (RF-02).</p>
+                <p className="small" style={{ marginBottom: 12 }}>Cada cambio queda registrado con su justificación.</p>
                 <Timeline events={riesgos.map((r) => ({
                   title: `${r.nivel.toUpperCase()} · ${r.puntaje}/100 · ${r.clasificado_por_nombre}`,
                   description: `${r.justificacion} — ${new Date(r.fecha_clasificacion).toLocaleString('es-PA')}`,

@@ -46,7 +46,7 @@ export default async function AuditorHome({ searchParams }: { searchParams: Prom
   return (
     <>
       <TopBar
-        eyebrow="CU-03 · Auditor interno"
+        eyebrow="Auditoría interna"
         title="Auditoría del sistema SAGAF"
         description="Acceso de solo lectura al log inmutable de eventos. No tienes acceso a contenido de ROS, solo a las acciones que se realizaron sobre ellos."
         userInitials={userInitials}

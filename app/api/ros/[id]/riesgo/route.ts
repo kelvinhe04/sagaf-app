@@ -9,7 +9,7 @@ import { audit, extractRequestContext } from '@/lib/audit';
 const schema = z.object({
   nivel: z.enum(['bajo', 'medio', 'alto']),
   puntaje: z.number().int().min(0).max(100),
-  justificacion: z.string().min(15, 'La justificación debe tener al menos 15 caracteres (RE-01)'),
+  justificacion: z.string().min(15, 'La justificación debe tener al menos 15 caracteres'),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {

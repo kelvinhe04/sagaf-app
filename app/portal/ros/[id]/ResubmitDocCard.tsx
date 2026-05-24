@@ -79,8 +79,8 @@ export function ResubmitDocCard({ rosId, docReqId, index, nombre, adjunto }: Pro
       {err && <div className="client-status error">{err}</div>}
       <div className="helper">
         {adjunto
-          ? 'Subir un archivo nuevo reemplazará el actual y reiniciará el estado del documento (CU-08).'
-          : 'Carga individual: este contenedor está asociado únicamente a este requisito (previene DEF-15).'}
+          ? 'Subir un archivo nuevo reemplazará el actual y reiniciará el estado del documento.'
+          : 'Este contenedor está asociado únicamente a este requisito documental.'}
       </div>
     </div>
   );

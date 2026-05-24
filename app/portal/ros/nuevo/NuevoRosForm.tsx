@@ -110,11 +110,11 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
       return;
     }
     if (isBank && !ordenante.id.trim()) {
-      setError('Debe registrar al menos la cédula del ordenante (RF-06).');
+      setError('Debe registrar al menos la cédula del ordenante.');
       return;
     }
     if (isRealEstate && !comprador.id.trim()) {
-      setError('Debe registrar la cédula del comprador (RF-06).');
+      setError('Debe registrar la cédula del comprador.');
       return;
     }
 
@@ -230,7 +230,7 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
               </select>
             </div>
             <div className="field full">
-              <div className="helper">Para reportes bancarios, valide por separado al <strong>ordenante</strong> y al <strong>beneficiario</strong> (RF-06).</div>
+              <div className="helper">Para reportes bancarios, valide por separado al <strong>ordenante</strong> y al <strong>beneficiario</strong>.</div>
               <div className="lookup-grid">
                 <PartyCard label="Persona que realiza la transacción" role="Ordenante"
                   state={ordenante} setState={setOrdenante}
@@ -245,7 +245,7 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
 
         {isRealEstate && (
           <div className="field full">
-            <div className="helper">Verifique al comprador. El sistema solo mostrará el nombre si la cédula existe (RF-06).</div>
+            <div className="helper">Verifique al comprador. El sistema solo mostrará el nombre si la cédula existe en el directorio.</div>
             <div className="lookup-grid single">
               <PartyCard label="Cliente / Comprador reportado" role="Comprador"
                 state={comprador} setState={setComprador}
@@ -298,14 +298,14 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
           <div className="helper">Mínimo 30 caracteres. Una narrativa insuficiente puede generar solicitud de subsanación.</div>
         </div>
 
-        <div className="section-title">4. Sustento documental individualizado (RF-07)</div>
+        <div className="section-title">4. Sustento documental</div>
         <div className="field full">
           <div className="doc-summary">
             <div className="info-box"><span>Requeridos</span><strong>{docList.length}</strong></div>
             <div className="info-box"><span>Cargados</span><strong>{cargados}</strong></div>
             <div className="info-box"><span>Pendientes</span><strong>{docList.length - cargados}</strong></div>
           </div>
-          <div className="helper">Cada documento tiene su propio contenedor. Esto evita el defecto DEF-15 (archivo en contenedor equivocado).</div>
+          <div className="helper">Cada documento tiene su propio contenedor de carga independiente.</div>
         </div>
 
         <div className="field full">

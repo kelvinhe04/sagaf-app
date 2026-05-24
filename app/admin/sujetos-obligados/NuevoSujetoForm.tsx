@@ -26,7 +26,7 @@ export function NuevoSujetoForm({ plantillas }: { plantillas: Plantilla[] }) {
     e.preventDefault();
     setError(null);
     if (seleccionadas.length === 0) {
-      setError('Debe asociar al menos una plantilla ROS (CU-06 RE-01).');
+      setError('Debe asociar al menos una plantilla ROS.');
       return;
     }
     setBusy(true);

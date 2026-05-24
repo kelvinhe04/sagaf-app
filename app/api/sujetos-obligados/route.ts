@@ -13,7 +13,7 @@ const schema = z.object({
   sector: z.string().min(1),
   organismo_supervisor: z.string().optional().nullable(),
   responsable_cumpl: z.string().optional().nullable(),
-  plantillas: z.array(z.string()).min(1, 'Asocie al menos una plantilla ROS (RE-01)'),
+  plantillas: z.array(z.string()).min(1, 'Asocie al menos una plantilla ROS'),
 });
 
 export async function POST(req: Request) {

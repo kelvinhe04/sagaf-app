@@ -36,7 +36,7 @@ export default async function PlantillasAdmin() {
       <TopBar
         eyebrow="Plantillas ROS"
         title="Plantillas dinámicas por sector"
-        description="Define la estructura de un ROS según el tipo de sujeto obligado. RE-02: el sistema admite nuevas plantillas sin rediseñar toda la solución."
+        description="Define la estructura de un ROS según el tipo de sujeto obligado. El sistema admite nuevas plantillas sin necesidad de rediseñar la solución."
         userInitials={userInitials}
         userName={session!.user.name ?? ''}
         userBadge="Administrador · MFA activo"

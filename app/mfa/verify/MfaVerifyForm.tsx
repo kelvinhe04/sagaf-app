@@ -88,8 +88,8 @@ export function MfaVerifyForm({ qr, secret, userEmail }: Props) {
         </div>
 
         <div className="notice" style={{ marginTop: 14, fontSize: 12.5 }}>
-          El código TOTP rota cada 30 segundos. Si tu reloj está desincronizado, podría fallar (DEF-01).
-          Esta verificación es obligatoria por RNF-01 / Ley 23/2015.
+          El código rota cada 30 segundos. Si tu dispositivo no está sincronizado con la hora correcta, podría fallar.
+          La verificación de dos factores es obligatoria para todos los usuarios.
         </div>
       </form>
     </>

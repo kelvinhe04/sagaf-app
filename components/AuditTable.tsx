@@ -94,7 +94,7 @@ export function AuditTable({ filters }: Props) {
         </table>
       )}
       <div className="notice" style={{ marginTop: 12 }}>
-        Mostrando los 200 eventos más recientes. El log es <strong>inmutable</strong> (RF-03 RE-01) y todas
+        Mostrando los 200 eventos más recientes. El log es <strong>inmutable</strong> y todas
         las consultas al log también quedan auditadas.
       </div>
     </>

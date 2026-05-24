@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge, estadoTone, estadoLabel, riskTone } from '@/components/Badge';
 import { InfoBox } from '@/components/InfoBox';
+import { BackButton } from '@/components/BackButton';
 import { canAccessROS } from '@/lib/permissions';
 import { ResubmitDocCard } from './ResubmitDocCard';
 
@@ -115,7 +116,12 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
         userInitials={userInitials}
         userName={session.user.name ?? ''}
         userBadge="MFA activo"
-        right={<Badge tone={estadoTone(ros.estado)}>{estadoLabel(ros.estado)}</Badge>}
+        right={
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <BackButton href="/portal" label="Mis ROS" />
+            <Badge tone={estadoTone(ros.estado)}>{estadoLabel(ros.estado)}</Badge>
+          </div>
+        }
       />
 
       <div className="uaf-layout">
@@ -172,7 +178,7 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
 
       <div className="card" style={{ marginTop: 18 }}>
         <div className="panel-head">
-          <div><h3>Solicitudes de subsanación de la UAF</h3><p>CU-08 · Corrija los documentos observados sin crear un ROS nuevo.</p></div>
+          <div><h3>Solicitudes de subsanación de la UAF</h3><p>Corrija los documentos observados sin necesidad de crear un nuevo ROS.</p></div>
           {subs.filter((s) => s.estado === 'pendiente').length > 0 && (
             <Badge tone="amber">{subs.filter((s) => s.estado === 'pendiente').length} pendiente(s)</Badge>
           )}
@@ -204,7 +210,7 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
 
       <div className="card" style={{ marginTop: 18 }}>
         <div className="panel-head">
-          <div><h3>Documentos requeridos por la plantilla</h3><p>RF-07: cada documento en su propio contenedor de carga.</p></div>
+          <div><h3>Documentos requeridos por la plantilla</h3><p>Cada documento solicitado tiene su propio contenedor de carga independiente.</p></div>
         </div>
 
         <div className="doc-grid">

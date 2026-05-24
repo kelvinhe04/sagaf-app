@@ -23,7 +23,7 @@ export default async function MfaSetupPage() {
         <p className="lead" style={{ marginBottom: 18 }}>
           Escanea este código QR con Google Authenticator, Microsoft Authenticator o Authy
           y luego ingresa el código de 6 dígitos. Es obligatorio para todos los usuarios
-          (RNF-01 / Ley 23/2015).
+          Es obligatorio para todos los usuarios del sistema.
         </p>
 
         <MfaSetupClient userEmail={session.user.email ?? ''} />

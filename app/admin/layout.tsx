@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { Sidebar, type NavItem } from '@/components/Sidebar';
+import { AppShell, type NavItem } from '@/components/AppShell';
 import { LayoutDashboard, Users, Building2, FileText } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -16,14 +16,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (session.user.rol !== 'admin') redirect('/');
 
   return (
-    <div className="app">
-      <Sidebar
-        role="admin"
-        userName={session.user.name ?? 'Admin'}
-        navItems={navItems}
-        note="Como administrador NO tienes acceso libre al contenido sensible de los ROS (RNF-02). Tus acciones quedan auditadas."
-      />
-      <main className="main">{children}</main>
-    </div>
+    <AppShell
+      role="admin"
+      userName={session.user.name ?? 'Admin'}
+      navItems={navItems}
+      note="Como administrador no tienes acceso al contenido sensible de los ROS. Todas tus acciones quedan registradas en auditoría."
+    >
+      {children}
+    </AppShell>
   );
 }

@@ -38,9 +38,9 @@ export default async function SujetosAdmin() {
   return (
     <>
       <TopBar
-        eyebrow="CU-06 · Gestión de sujetos obligados"
+        eyebrow="Gestión de sujetos obligados"
         title="Sujetos obligados"
-        description="Registra, clasifica y administra sujetos obligados. Cada uno debe tener tipo, sector y plantilla ROS asociada (RE-01). El registro queda auditado."
+        description="Registra, clasifica y administra sujetos obligados. Cada uno debe tener tipo, sector y plantilla ROS asociada. El registro queda auditado."
         userInitials={userInitials}
         userName={session!.user.name ?? ''}
         userBadge="Administrador · MFA activo"
@@ -79,7 +79,7 @@ export default async function SujetosAdmin() {
 
       <div className="card" style={{ marginTop: 18 }}>
         <h3 style={{ margin: 0 }}>Registrar nuevo sujeto obligado</h3>
-        <p className="small" style={{ marginBottom: 14 }}>Debe asociarse al menos una plantilla ROS válida (CU-06 A4 / RE-01).</p>
+        <p className="small" style={{ marginBottom: 14 }}>Debe asociarse al menos una plantilla ROS válida.</p>
         <NuevoSujetoForm plantillas={plantillas} />
       </div>
     </>

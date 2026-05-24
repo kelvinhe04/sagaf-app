@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { LogOut } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import type { Role } from '@/types';
 import type { ReactNode } from 'react';
 
@@ -17,9 +17,11 @@ interface Props {
   userName: string;
   navItems: NavItem[];
   note?: string;
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function Sidebar({ role, userName, navItems, note }: Props) {
+export function Sidebar({ role, userName, navItems, note, mobileOpen, onClose }: Props) {
   const path = usePathname();
   const roleLabel: Record<Role, string> = {
     sujeto_obligado: 'Portal del Sujeto Obligado',
@@ -30,7 +32,18 @@ export function Sidebar({ role, userName, navItems, note }: Props) {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${mobileOpen ? ' sidebar--open' : ''}`}>
+      {onClose && (
+        <button
+          className="sidebar-close"
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar menú"
+        >
+          <X size={18} />
+        </button>
+      )}
+
       <div className="brand">
         <div className="brand-icon">SG</div>
         <div>
@@ -44,7 +57,12 @@ export function Sidebar({ role, userName, navItems, note }: Props) {
         {navItems.map((item) => {
           const active = path === item.href || (item.href !== '/' && path.startsWith(item.href));
           return (
-            <Link key={item.href} href={item.href} className={active ? 'active' : ''}>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={active ? 'active' : ''}
+              onClick={onClose}
+            >
               <span style={{ display: 'flex', alignItems: 'center', marginRight: 4 }}>{item.icon}</span>
               {item.label}
             </Link>
@@ -54,8 +72,12 @@ export function Sidebar({ role, userName, navItems, note }: Props) {
 
       <div className="side-title">Sesión</div>
       <div className="nav">
-        <button type="button" onClick={() => signOut({ callbackUrl: '/login' })}>
-          <span style={{ display: 'flex', alignItems: 'center', marginRight: 4 }}><LogOut size={16} /></span>
+        <button
+          type="button"
+          className="signout-btn"
+          onClick={() => signOut({ callbackUrl: '/login' })}
+        >
+          <LogOut size={16} />
           Cerrar sesión
         </button>
       </div>
@@ -63,7 +85,7 @@ export function Sidebar({ role, userName, navItems, note }: Props) {
       <div className="side-note">
         <strong style={{ color: 'white', display: 'block', marginBottom: 4 }}>{userName}</strong>
         {note ??
-          'Esta sesión está protegida por MFA. Todas las acciones quedan registradas en auditoría (RF-03).'}
+          'Esta sesión está protegida por autenticación de dos factores. Todas las acciones quedan registradas en auditoría.'}
       </div>
     </aside>
   );

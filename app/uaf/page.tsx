@@ -107,7 +107,7 @@ export default async function UafBandeja({ searchParams }: { searchParams: Promi
         <div className="panel-head">
           <div>
             <h3>Bandeja de ROS</h3>
-            <p>Priorizada por riesgo, estado y completitud documental (RF-02).</p>
+            <p>Priorizada por riesgo, estado y completitud documental.</p>
           </div>
           <span className="badge green">Actualizado</span>
         </div>
