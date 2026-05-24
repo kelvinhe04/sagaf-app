@@ -1,13 +1,17 @@
 'use client';
+import { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { ArrowLeft } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 export function SignOutLink({ label = 'Cancelar y cerrar sesión' }: { label?: string }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div style={{ position: 'fixed', top: 24, left: 24, zIndex: 50 }}>
       <button
         type="button"
-        onClick={() => signOut({ callbackUrl: '/login' })}
+        onClick={() => setOpen(true)}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -39,6 +43,17 @@ export function SignOutLink({ label = 'Cancelar y cerrar sesión' }: { label?: s
         <ArrowLeft size={15} strokeWidth={2} />
         {label}
       </button>
+
+      <ConfirmModal
+        isOpen={open}
+        variant="warning"
+        title="¿Cancelar y cerrar sesión?"
+        message="Se descartará cualquier progreso no guardado y se cerrará tu sesión activa."
+        confirmLabel="Sí, cerrar sesión"
+        cancelLabel="Volver"
+        onConfirm={() => signOut({ callbackUrl: '/login' })}
+        onCancel={() => setOpen(false)}
+      />
     </div>
   );
 }

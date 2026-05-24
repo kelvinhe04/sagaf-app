@@ -62,36 +62,38 @@ export function AuditTable({ filters }: Props) {
       {rows.length === 0 ? (
         <div className="notice">Sin eventos para los filtros seleccionados.</div>
       ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Fecha (servidor)</th>
-              <th>Usuario</th>
-              <th>Rol</th>
-              <th>Módulo</th>
-              <th>Acción</th>
-              <th>Resultado</th>
-              <th>Recurso</th>
-              <th>Criticidad</th>
-              <th>IP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.id}>
-                <td>{new Date(r.fecha_hora_servidor).toLocaleString('es-PA')}</td>
-                <td>{r.usuario_correo ?? <span className="small">system</span>}</td>
-                <td><span className="small">{r.rol ?? '—'}</span></td>
-                <td>{r.modulo}</td>
-                <td><strong>{r.accion}</strong>{r.detalle && <div className="small">{r.detalle.slice(0, 90)}{r.detalle.length > 90 ? '…' : ''}</div>}</td>
-                <td><Badge tone={toneByResultado[r.resultado] ?? 'gray'}>{r.resultado}</Badge></td>
-                <td>{r.recurso_afectado ?? '—'}</td>
-                <td><Badge tone={toneByCriticidad[r.criticidad] ?? 'gray'}>{r.criticidad}</Badge></td>
-                <td className="small">{r.ip ?? '—'}</td>
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Fecha (servidor)</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Módulo</th>
+                <th>Acción</th>
+                <th>Resultado</th>
+                <th>Recurso</th>
+                <th>Criticidad</th>
+                <th>IP</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>{new Date(r.fecha_hora_servidor).toLocaleString('es-PA')}</td>
+                  <td>{r.usuario_correo ?? <span className="small">system</span>}</td>
+                  <td><span className="small">{r.rol ?? '—'}</span></td>
+                  <td>{r.modulo}</td>
+                  <td><strong>{r.accion}</strong>{r.detalle && <div className="small">{r.detalle.slice(0, 90)}{r.detalle.length > 90 ? '…' : ''}</div>}</td>
+                  <td><Badge tone={toneByResultado[r.resultado] ?? 'gray'}>{r.resultado}</Badge></td>
+                  <td>{r.recurso_afectado ?? '—'}</td>
+                  <td><Badge tone={toneByCriticidad[r.criticidad] ?? 'gray'}>{r.criticidad}</Badge></td>
+                  <td className="small">{r.ip ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       <div className="notice" style={{ marginTop: 12 }}>
         Mostrando los 200 eventos más recientes. El log es <strong>inmutable</strong> y todas

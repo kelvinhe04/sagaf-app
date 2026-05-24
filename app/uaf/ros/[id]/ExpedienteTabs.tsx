@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/Badge';
 import { Timeline } from '@/components/Timeline';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { maskDescriptionText } from '@/lib/masking';
 
 interface DocReq  { id: string; nombre: string; orden: number }
@@ -52,6 +53,13 @@ export function RosExpedienteTabs({
   // Cambio de estado
   const [nuevoEstado, setNuevoEstado] = useState<string>('en_analisis');
 
+  // Modales de confirmación
+  type ModalKey = 'cerrarRos' | 'observarDoc' | 'confirmarVinc' | 'descartarVinc' | null;
+  const [activeModal, setActiveModal] = useState<ModalKey>(null);
+  const [pendingDocId, setPendingDocId] = useState<string>('');
+  const [observacionText, setObservacionText] = useState('');
+  const [pendingVincId, setPendingVincId] = useState<string>('');
+
   async function clasificar(e: React.FormEvent) {
     e.preventDefault();
     if (riesgoJustif.trim().length < 15) { alert('La justificación debe tener al menos 15 caracteres.'); return; }
@@ -84,6 +92,12 @@ export function RosExpedienteTabs({
 
   async function cambiarEstado(e: React.FormEvent) {
     e.preventDefault();
+    if (nuevoEstado === 'cerrado') { setActiveModal('cerrarRos'); return; }
+    await doCambiarEstado();
+  }
+
+  async function doCambiarEstado() {
+    setActiveModal(null);
     setBusy(true);
     try {
       const res = await fetch(`/api/ros/${rosId}`, {
@@ -95,7 +109,14 @@ export function RosExpedienteTabs({
     } finally { setBusy(false); }
   }
 
+  function abrirObservar(docId: string) {
+    setPendingDocId(docId);
+    setObservacionText('');
+    setActiveModal('observarDoc');
+  }
+
   async function marcarDocumento(docId: string, estado: 'observado' | 'validado', observacion?: string) {
+    setActiveModal(null);
     setBusy(true);
     try {
       const res = await fetch(`/api/documentos/${docId}`, {
@@ -107,12 +128,18 @@ export function RosExpedienteTabs({
     } finally { setBusy(false); }
   }
 
-  async function confirmarVinculo(vincId: string, confirmar: boolean) {
+  function abrirVinculo(vincId: string, confirmar: boolean) {
+    setPendingVincId(vincId);
+    setActiveModal(confirmar ? 'confirmarVinc' : 'descartarVinc');
+  }
+
+  async function doVinculo(confirmar: boolean) {
+    setActiveModal(null);
     setBusy(true);
     try {
       const res = await fetch(`/api/vinculos`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: vincId, confirmado: confirmar }),
+        body: JSON.stringify({ id: pendingVincId, confirmado: confirmar }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error ?? 'Error.'); return; }
       router.refresh();
@@ -227,10 +254,7 @@ export function RosExpedienteTabs({
                           onClick={() => marcarDocumento(adj.id, 'validado')}
                           disabled={busy}>Validar</button>
                         <button className="btn amber"
-                          onClick={() => {
-                            const obs = prompt('Observación para el sujeto obligado:');
-                            if (obs) marcarDocumento(adj.id, 'observado', obs);
-                          }}
+                          onClick={() => abrirObservar(adj.id)}
                           disabled={busy}>Observar</button>
                       </div>
                     </>
@@ -317,8 +341,8 @@ export function RosExpedienteTabs({
                   <div className="action-row">
                     {!v.confirmado && (
                       <>
-                        <button className="btn green" onClick={() => confirmarVinculo(v.id, true)}  disabled={busy}>Confirmar vínculo</button>
-                        <button className="btn red"   onClick={() => confirmarVinculo(v.id, false)} disabled={busy}>Descartar</button>
+                        <button className="btn green" onClick={() => abrirVinculo(v.id, true)}  disabled={busy}>Confirmar vínculo</button>
+                        <button className="btn red"   onClick={() => abrirVinculo(v.id, false)} disabled={busy}>Descartar</button>
                       </>
                     )}
                   </div>
@@ -344,6 +368,62 @@ export function RosExpedienteTabs({
           </div>
         </>
       )}
+
+      {/* ── Modales de confirmación ── */}
+      <ConfirmModal
+        isOpen={activeModal === 'cerrarRos'}
+        variant="danger"
+        title="¿Cerrar este ROS?"
+        message={`El ROS ${numeroRos} pasará a estado Cerrado de forma definitiva. Solo un supervisor puede ejecutar esta acción y queda registrada en auditoría.`}
+        confirmLabel="Sí, cerrar ROS"
+        cancelLabel="Cancelar"
+        busy={busy}
+        onConfirm={doCambiarEstado}
+        onCancel={() => setActiveModal(null)}
+      />
+
+      <ConfirmModal
+        isOpen={activeModal === 'observarDoc'}
+        variant="warning"
+        title="Observar documento"
+        message="Escribe la observación que verá el sujeto obligado al revisar el estado de este documento."
+        confirmLabel="Enviar observación"
+        cancelLabel="Cancelar"
+        busy={busy}
+        input={{
+          label: 'Observación para el sujeto obligado',
+          placeholder: 'Ej: El archivo está ilegible, por favor cargue una versión legible…',
+          required: true,
+          value: observacionText,
+          onChange: setObservacionText,
+        }}
+        onConfirm={() => marcarDocumento(pendingDocId, 'observado', observacionText)}
+        onCancel={() => setActiveModal(null)}
+      />
+
+      <ConfirmModal
+        isOpen={activeModal === 'confirmarVinc'}
+        variant="success"
+        title="¿Confirmar vínculo intersectorial?"
+        message="Se registrará el vínculo como confirmado y el estado del ROS cambiará a 'Vinculado'. Esta acción queda en auditoría."
+        confirmLabel="Sí, confirmar vínculo"
+        cancelLabel="Cancelar"
+        busy={busy}
+        onConfirm={() => doVinculo(true)}
+        onCancel={() => setActiveModal(null)}
+      />
+
+      <ConfirmModal
+        isOpen={activeModal === 'descartarVinc'}
+        variant="warning"
+        title="¿Descartar vínculo?"
+        message="El vínculo detectado automáticamente será descartado. Esta acción queda registrada en auditoría."
+        confirmLabel="Sí, descartar"
+        cancelLabel="Cancelar"
+        busy={busy}
+        onConfirm={() => doVinculo(false)}
+        onCancel={() => setActiveModal(null)}
+      />
     </div>
   );
 }

@@ -63,6 +63,12 @@ button, input, textarea, select { font: inherit; }
   background: linear-gradient(180deg, #0b3359, #102a43);
   color: white;
   transition: transform 0.28s cubic-bezier(.4, 0, .2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-spacer {
+  flex: 1;
 }
 
 .brand {
@@ -200,7 +206,7 @@ button, input, textarea, select { font: inherit; }
   line-height: 1.55;
 }
 
-.main { padding: 30px; }
+.main { padding: 30px; min-width: 0; overflow-x: hidden; }
 
 /* Mobile header (hidden on desktop) */
 .mobile-header {
@@ -1045,4 +1051,147 @@ label { color: #344054; font-size: 13px; font-weight: 900; }
   .mobile-header { margin: -14px -14px 14px; }
   h2 { font-size: 21px; }
   .card { padding: 16px; }
+}
+
+/* ---------- Confirmation Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .52);
+  backdrop-filter: blur(3px);
+  z-index: 9000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  animation: modalFadeIn .18s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-box {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, .22), 0 4px 16px rgba(15, 23, 42, .08);
+  padding: 32px 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  animation: modalSlideUp .2s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(18px) scale(.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);   opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #f1f5f9;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background .15s, color .15s;
+}
+
+.modal-close:hover {
+  background: #e2e8f0;
+  color: var(--ink);
+}
+
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+}
+
+.modal-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #102a43;
+  font-weight: 900;
+}
+
+.modal-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.modal-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .modal-box { padding: 24px 18px 20px; }
+  .modal-actions { flex-direction: column-reverse; }
+}
+
+/* ---------- Custom scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5d3e8;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+  transition: background .2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Sidebar scrollbar — dark variant */
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.06);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.22);
+  border-color: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,.42);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c5d3e8 var(--bg);
+}
+
+.sidebar {
+  scrollbar-color: rgba(255,255,255,.22) rgba(255,255,255,.06);
 }

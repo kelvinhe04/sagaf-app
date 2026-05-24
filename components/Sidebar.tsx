@@ -1,8 +1,10 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { LogOut, X } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 import type { Role } from '@/types';
 import type { ReactNode } from 'react';
 
@@ -23,6 +25,7 @@ interface Props {
 
 export function Sidebar({ role, userName, navItems, note, mobileOpen, onClose }: Props) {
   const path = usePathname();
+  const [showSignOut, setShowSignOut] = useState(false);
   const roleLabel: Record<Role, string> = {
     sujeto_obligado: 'Portal del Sujeto Obligado',
     analista:        'Sistema interno UAF',
@@ -80,23 +83,36 @@ export function Sidebar({ role, userName, navItems, note, mobileOpen, onClose }:
         })}
       </nav>
 
-      <div className="side-title">Sesión</div>
-      <div className="nav">
-        <button
-          type="button"
-          className="signout-btn"
-          onClick={() => signOut({ callbackUrl: '/login' })}
-        >
-          <LogOut size={16} />
-          Cerrar sesión
-        </button>
-      </div>
+      <div className="sidebar-spacer" />
 
       <div className="side-note">
         <strong style={{ color: 'white', display: 'block', marginBottom: 4 }}>{userName}</strong>
         {note ??
           'Esta sesión está protegida por autenticación de dos factores. Todas las acciones quedan registradas en auditoría.'}
       </div>
+
+      <div className="side-title">Sesión</div>
+      <div className="nav">
+        <button
+          type="button"
+          className="signout-btn"
+          onClick={() => setShowSignOut(true)}
+        >
+          <LogOut size={16} />
+          Cerrar sesión
+        </button>
+      </div>
+
+      <ConfirmModal
+        isOpen={showSignOut}
+        variant="danger"
+        title="¿Cerrar sesión?"
+        message="Tu sesión activa se cerrará y serás redirigido a la pantalla de inicio de sesión."
+        confirmLabel="Sí, cerrar sesión"
+        cancelLabel="Cancelar"
+        onConfirm={() => signOut({ callbackUrl: '/login' })}
+        onCancel={() => setShowSignOut(false)}
+      />
     </aside>
   );
 }
