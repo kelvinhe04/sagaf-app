@@ -29,9 +29,7 @@ export default async function MfaVerifyPage() {
 
   return (
     <div className="auth-shell">
-      <div style={{ position: 'absolute', top: 6, left: 6 }}>
-        <SignOutLink />
-      </div>
+      <SignOutLink />
       <div className="auth-card" style={{ maxWidth: 520 }}>
         <div className="brand" style={{ color: '#102a43', marginBottom: 18 }}>
           <div className="brand-icon">SG</div>

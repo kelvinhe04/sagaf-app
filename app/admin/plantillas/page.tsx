@@ -72,9 +72,8 @@ export default async function PlantillasAdmin() {
       </div>
 
       <div className="notice" style={{ marginTop: 14 }}>
-        ℹ️ Las plantillas demo (Banco Persona Natural, Banco Persona Jurídica, Inmobiliaria) traen
-        precargados los documentos requeridos del Manual de Calidad de ROS de la UAF (2018) — mismo
-        listado del Prototipo.html del Parcial 1.
+        ℹ️ Las plantillas (Banco Persona Natural, Banco Persona Jurídica, Inmobiliaria) traen
+        precargados los documentos requeridos del Manual de Calidad de ROS de la UAF (2018).
       </div>
     </>
   );

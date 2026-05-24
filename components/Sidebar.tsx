@@ -55,7 +55,17 @@ export function Sidebar({ role, userName, navItems, note, mobileOpen, onClose }:
       <div className="side-title">Navegación</div>
       <nav className="nav">
         {navItems.map((item) => {
-          const active = path === item.href || (item.href !== '/' && path.startsWith(item.href));
+          const active = (() => {
+            if (path === item.href) return true;
+            if (item.href === '/' || !path.startsWith(item.href + '/')) return false;
+            // Don't mark parent active if a more-specific nav item already matches
+            return !navItems.some(
+              (other) =>
+                other.href !== item.href &&
+                other.href.startsWith(item.href) &&
+                (path === other.href || path.startsWith(other.href + '/')),
+            );
+          })();
           return (
             <Link
               key={item.href}

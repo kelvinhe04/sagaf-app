@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { headers } from 'next/headers';
+import { ShieldCheck } from 'lucide-react';
 import { TopBar } from '@/components/TopBar';
 import { KpiCard } from '@/components/KpiCard';
 import { AuditTable } from '@/components/AuditTable';
@@ -61,11 +62,20 @@ export default async function AuditorHome({ searchParams }: { searchParams: Prom
         <KpiCard label="Fallos MFA" value={mfaFails} badge="Seguridad" tone="purple" />
       </div>
 
+      <div className="notice" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 18 }}>
+        <ShieldCheck size={16} style={{ flexShrink: 0, marginTop: 2 }} />
+        <span>
+          <strong>Log inmutable — CU-03 · RF-03 · RNF-03:</strong> Este historial es de solo lectura. Los triggers de base de datos bloquean cualquier UPDATE o DELETE sobre la tabla{' '}
+          <code style={{ fontFamily: 'Consolas, monospace', background: '#e8f3ff', padding: '1px 5px', borderRadius: 5 }}>evento_auditoria</code>.
+          La consulta que estás realizando ahora también quedó registrada en el log.
+        </span>
+      </div>
+
       <div className="card">
         <div className="panel-head">
           <div>
             <h3>Eventos de auditoría</h3>
-            <p>Log inmutable · hora del servidor · trigger ABORT a nivel de BD.</p>
+            <p>Timestamp del servidor SQLite · IP · User-Agent · Rol · Acción · Resultado</p>
           </div>
         </div>
         <AuditTable filters={filters} />

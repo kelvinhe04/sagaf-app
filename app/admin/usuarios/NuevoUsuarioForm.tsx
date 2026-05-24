@@ -12,7 +12,8 @@ export function NuevoUsuarioForm({ sujetos, roles }: Props) {
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
-  const [rolId, setRolId] = useState(roles[0]?.id ?? '');
+  const defaultRol = roles.find((r) => r.nombre === 'analista') ?? roles[0];
+  const [rolId, setRolId] = useState(defaultRol?.id ?? '');
   const [sujetoId, setSujetoId] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

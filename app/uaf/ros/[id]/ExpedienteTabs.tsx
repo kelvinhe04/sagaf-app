@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/Badge';
 import { Timeline } from '@/components/Timeline';
+import { maskDescriptionText } from '@/lib/masking';
 
 interface DocReq  { id: string; nombre: string; orden: number }
 interface DocAdj  {
@@ -311,7 +312,7 @@ export function RosExpedienteTabs({
                   </div>
                   <div className="report-meta">
                     <span><strong>Tipo:</strong> {v.tipo_vinculo}</span>
-                    {v.descripcion && <span>{v.descripcion}</span>}
+                    {v.descripcion && <span>{maskDescriptionText(v.descripcion)}</span>}
                   </div>
                   <div className="action-row">
                     {!v.confirmado && (

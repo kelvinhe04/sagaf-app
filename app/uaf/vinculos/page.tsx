@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge } from '@/components/Badge';
+import { maskDescriptionText } from '@/lib/masking';
 import { VinculoActions } from './VinculoActions';
 
 interface Row {
@@ -55,7 +56,7 @@ export default async function VinculosPage() {
                 </div>
                 <div className="report-meta">
                   <span><strong>Tipo:</strong> {v.tipo_vinculo}</span>
-                  {v.descripcion && <span>{v.descripcion}</span>}
+                  {v.descripcion && <span>{maskDescriptionText(v.descripcion)}</span>}
                   <span>Detectado: {new Date(v.fecha_deteccion).toLocaleString('es-PA')}</span>
                 </div>
                 {!v.confirmado && <VinculoActions vincId={v.id} />}

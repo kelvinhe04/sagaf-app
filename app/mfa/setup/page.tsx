@@ -10,26 +10,24 @@ export default async function MfaSetupPage() {
 
   return (
     <div className="auth-shell">
-      <div style={{ position: 'absolute', top: 6, left: 6 }}>
-        <SignOutLink />
-      </div>
+      <SignOutLink />
       <div className="auth-card" style={{ maxWidth: 520 }}>
         <div className="brand" style={{ color: '#102a43', marginBottom: 18 }}>
-          <div className="brand-icon">SG</div>
-          <div>
-            <h1>SAGAF · Enrolamiento MFA</h1>
-            <span style={{ color: '#667085' }}>Primer ingreso — configuración del segundo factor</span>
+            <div className="brand-icon">SG</div>
+            <div>
+              <h1>SAGAF · Enrolamiento MFA</h1>
+              <span style={{ color: '#667085' }}>Primer ingreso — configuración del segundo factor</span>
+            </div>
           </div>
-        </div>
 
-        <h1 style={{ fontSize: 22, marginBottom: 4 }}>Configura tu autenticador</h1>
-        <p className="lead" style={{ marginBottom: 18 }}>
-          Escanea este código QR con Google Authenticator, Microsoft Authenticator o Authy
-          y luego ingresa el código de 6 dígitos. Es obligatorio para todos los usuarios
-          Es obligatorio para todos los usuarios del sistema.
-        </p>
+          <h1 style={{ fontSize: 22, marginBottom: 4 }}>Configura tu autenticador</h1>
+          <p className="lead" style={{ marginBottom: 18 }}>
+            Escanea este código QR con Google Authenticator, Microsoft Authenticator o Authy
+            y luego ingresa el código de 6 dígitos. Es obligatorio para todos los usuarios
+            del sistema.
+          </p>
 
-        <MfaSetupClient userEmail={session.user.email ?? ''} />
+          <MfaSetupClient userEmail={session.user.email ?? ''} />
       </div>
     </div>
   );

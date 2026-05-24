@@ -40,7 +40,7 @@ pnpm install
 # 2. Inicializar la base de datos (crea db/sagaf.db con el schema)
 pnpm db:init
 
-# 3. Cargar datos demo (usuarios, plantillas, 3 ROS, mock de personas)
+# 3. Cargar datos iniciales (usuarios, plantillas, 3 ROS, mock de personas)
 pnpm db:seed
 
 # 4. Levantar el servidor de desarrollo
@@ -53,15 +53,15 @@ Abrir [http://localhost:3000](http://localhost:3000) — serás redirigido a `/l
 
 ---
 
-## 🔐 Credenciales demo
+## 🔐 Credenciales
 
 Todas las cuentas usan la contraseña **`password123`** (hash bcrypt en BD).
 Al primer login, cada cuenta deberá **enrolar MFA** escaneando el QR con su autenticador.
 
 | Rol | Correo | Acceso |
 | --- | --- | --- |
-| 🏦 Sujeto Obligado · Banco | `cumplimiento@bancodemo.com` | `/portal` |
-| 🏠 Sujeto Obligado · Inmobiliaria | `cumplimiento@inmobiliariademo.com` | `/portal` |
+| 🏦 Sujeto Obligado · Banco | `cumplimiento@banconacional.com.pa` | `/portal` |
+| 🏠 Sujeto Obligado · Inmobiliaria | `cumplimiento@inmobiliariaistmo.com.pa` | `/portal` |
 | 🔎 Analista UAF | `analista@uaf.gob.pa` | `/uaf` |
 | 👤 Supervisor UAF | `supervisor@uaf.gob.pa` | `/uaf` (puede cerrar + exportar) |
 | 🛡️ Auditor Interno | `auditor@uaf.gob.pa` | `/auditor` (solo lectura) |
@@ -202,9 +202,9 @@ sagaf-app/
 
 ## 🧪 Cómo probar el sistema
 
-1. **Login como Banco**: `cumplimiento@bancodemo.com` / `password123`
+1. **Login como Banco**: `cumplimiento@banconacional.com.pa` / `password123`
    - Enrola MFA con tu app autenticadora (escanea QR o pega la clave manual).
-   - Verás `/portal` con los 2 ROS del demo del banco.
+   - Verás `/portal` con los 2 ROS del banco.
    - Click en *“Registrar nuevo ROS”*. Verifica con cédula `8-888-888` → debería mostrar “María Elena González” y nada más.
    - Sube archivos a cada requisito documental (mín. 5 para probar). Envía.
 
