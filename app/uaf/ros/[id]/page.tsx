@@ -10,6 +10,8 @@ import { ProgressList } from '@/components/ProgressBar';
 import { Timeline } from '@/components/Timeline';
 import { RosExpedienteTabs } from './ExpedienteTabs';
 
+export const revalidate = 0;
+
 interface RosRow {
   id: string;
   numero_ros: string;

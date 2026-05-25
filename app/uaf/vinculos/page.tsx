@@ -5,6 +5,8 @@ import { Badge } from '@/components/Badge';
 import { maskDescriptionText } from '@/lib/masking';
 import { VinculoActions } from './VinculoActions';
 
+export const revalidate = 0;
+
 interface Row {
   id: string;
   ros_origen_id: string;

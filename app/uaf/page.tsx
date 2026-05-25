@@ -7,6 +7,8 @@ import { Badge, riskTone, estadoTone, estadoLabel } from '@/components/Badge';
 import { FilterBar } from './FilterBar';
 import { Landmark, Home, MapPin } from 'lucide-react';
 
+export const revalidate = 0;
+
 interface SearchParams {
   q?: string;
   tipo?: string;

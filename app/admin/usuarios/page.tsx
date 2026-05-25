@@ -5,6 +5,8 @@ import { Badge } from '@/components/Badge';
 import { NuevoUsuarioForm } from './NuevoUsuarioForm';
 import { UsuarioActions } from './UsuarioActions';
 
+export const revalidate = 0;
+
 interface UserRow {
   id: string;
   nombre: string;

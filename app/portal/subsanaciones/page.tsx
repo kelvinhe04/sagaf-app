@@ -4,6 +4,8 @@ import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge } from '@/components/Badge';
 
+export const revalidate = 0;
+
 interface Row {
   id: string;
   ros_id: string;

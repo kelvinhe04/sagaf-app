@@ -8,6 +8,8 @@ import { BackButton } from '@/components/BackButton';
 import { canAccessROS } from '@/lib/permissions';
 import { ResubmitDocCard } from './ResubmitDocCard';
 
+export const revalidate = 0;
+
 interface RosRow {
   id: string;
   numero_ros: string;

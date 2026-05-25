@@ -5,6 +5,8 @@ import { KpiCard } from '@/components/KpiCard';
 import { Badge } from '@/components/Badge';
 import { InfoBox } from '@/components/InfoBox';
 
+export const revalidate = 0;
+
 interface SP { tipo?: string }
 
 interface ResumenSector {

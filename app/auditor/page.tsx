@@ -7,6 +7,8 @@ import { AuditTable } from '@/components/AuditTable';
 import { db } from '@/lib/db';
 import { audit } from '@/lib/audit';
 
+export const revalidate = 0;
+
 interface SP {
   q?: string; modulo?: string; resultado?: string; criticidad?: string; desde?: string; hasta?: string;
 }

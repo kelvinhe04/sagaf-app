@@ -4,6 +4,8 @@ import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge, estadoTone, estadoLabel, riskTone } from '@/components/Badge';
 
+export const revalidate = 0;
+
 interface SujetoRow { id: string; nombre: string; tipo: string }
 
 interface RosResumen {

@@ -4,6 +4,8 @@ import { TopBar } from '@/components/TopBar';
 import { Badge } from '@/components/Badge';
 import { NuevoSujetoForm } from './NuevoSujetoForm';
 
+export const revalidate = 0;
+
 interface Row {
   id: string;
   nombre: string;

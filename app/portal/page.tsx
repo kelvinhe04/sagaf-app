@@ -6,6 +6,8 @@ import { KpiCard } from '@/components/KpiCard';
 import { Badge, estadoTone, estadoLabel, riskTone } from '@/components/Badge';
 import { FileText, FilePlus, RefreshCw, AlertTriangle, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 
+export const revalidate = 0;
+
 interface SujetoRow { id: string; nombre: string; tipo: string; sector: string }
 
 interface RosResumen {

@@ -5,6 +5,8 @@ import { TopBar } from '@/components/TopBar';
 import { KpiCard } from '@/components/KpiCard';
 import { Users, Building2, FileText, AlertTriangle, ArrowRight, ShieldCheck } from 'lucide-react';
 
+export const revalidate = 0;
+
 interface UsuarioSinMFA {
   nombre: string;
   correo: string;

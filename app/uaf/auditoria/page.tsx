@@ -4,6 +4,8 @@ import { AuditTable } from '@/components/AuditTable';
 import { audit, extractRequestContext } from '@/lib/audit';
 import { headers } from 'next/headers';
 
+export const revalidate = 0;
+
 interface SP {
   q?: string; modulo?: string; resultado?: string; criticidad?: string; desde?: string; hasta?: string;
 }

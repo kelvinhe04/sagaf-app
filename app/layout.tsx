@@ -3,9 +3,10 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'SAGAF — Sistema Automatizado de Gestión de Análisis Financiero',
+  title: 'SAGAF',
   description:
     'Portal público y sistema interno UAF para la gestión de Reportes de Operaciones Sospechosas (Ley 23/2015, Ley 81/2019).',
+  icons: { icon: '/icon.svg' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
