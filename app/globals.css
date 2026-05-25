@@ -376,8 +376,11 @@ input, select, textarea {
   padding: 12px 13px;
   outline: none;
   width: 100%;
+  font-size: 13px;
   transition: border-color .15s, box-shadow .15s;
 }
+
+input::placeholder, textarea::placeholder { font-size: 12px; }
 
 textarea { min-height: 105px; resize: vertical; line-height: 1.5; }
 
