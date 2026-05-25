@@ -24,6 +24,11 @@ if (!hasUsuario && existsSync(schemaPath)) {
   db.exec(readFileSync(schemaPath, 'utf8'));
 }
 
+// Preserva secretos MFA antes de limpiar (evita invalidar QR ya escaneados en dev)
+const mfaBackup = db.prepare(
+  'SELECT id, mfa_secret, mfa_activo FROM usuario WHERE mfa_secret IS NOT NULL AND mfa_activo = 1',
+).all() as Array<{ id: string; mfa_secret: string; mfa_activo: number }>;
+
 // Limpieza idempotente (en orden inverso de FK)
 const tables = [
   'evento_auditoria',
@@ -151,11 +156,13 @@ linkSOPL.run('so_banco_nacional', 'pl_bank_legal');
 linkSOPL.run('so_inmob_istmo', 'pl_realestate');
 
 const insertDocReq = db.prepare(`
-  INSERT INTO documento_requerido (id, plantilla_id, nombre, obligatorio, orden)
-  VALUES (?, ?, ?, 1, ?)
+  INSERT INTO documento_requerido (id, plantilla_id, nombre, tipo_requerimiento, obligatorio, orden)
+  VALUES (?, ?, ?, ?, 1, ?)
 `);
 
-const bankNatural = [
+type DocEntry = string | { nombre: string; tipo: 'requerido' | 'condicional' | 'opcional' };
+
+const bankNatural: DocEntry[] = [
   'Documentos de Apertura de la Cuenta',
   'Contrato de Servicios Bancarios',
   'Documento de identidad personal (Cédula y/o pasaporte)',
@@ -172,7 +179,7 @@ const bankNatural = [
   'Comunicaciones enviadas y recibidas sobre gestiones de descarte',
 ];
 
-const bankLegal = [
+const bankLegal: DocEntry[] = [
   'Contrato de los Servicios Bancarios',
   'Documentos de Apertura',
   'Identificación del Representante Legal, Dignatarios, Directores, Apoderados, Accionistas y Beneficiarios Finales',
@@ -200,30 +207,35 @@ const bankLegal = [
   'Volante de depósitos y retiros de cuenta',
 ];
 
-const realEstate = [
-  'Contrato de Promesa de Compra Venta',
-  'Debida Diligencia del Cliente Comprador',
-  'Identificación personal y/o pasaporte del Comprador',
-  'Referencias Bancarias obtenidas',
-  'Referencias Comerciales obtenidas',
-  'Carta de Trabajo',
-  'Ficha, Talonario o Declaración de Renta',
-  'Perfil transaccional del comprador (Ingresos y Egresos mensuales)',
-  'Detalle del bien objeto del contrato (Ubicación, valor y precio de venta)',
-  'Copia de la Escritura Pública de compra y venta del bien inmueble',
-  'Forma de pago del Bien Inmueble',
-  'Documento de vinculación al financiamiento bancario',
-  'Sustento de procedencia de fondos utilizados para el pago de la propiedad',
-  'Avalúos realizados a la propiedad',
-  'Recibo de pago del abono inicial',
-  'Recibos de pagos realizados para la compra del bien inmueble',
-  'Sustento de pagos realizados: cheques, ACH y transferencias internacionales',
+const realEstate: DocEntry[] = [
+  // REQUERIDOS — bloquean el envío si no se adjuntan
+  { nombre: 'Contrato de Promesa de Compra Venta',                        tipo: 'requerido' },
+  { nombre: 'Debida Diligencia del Cliente Comprador',                     tipo: 'requerido' },
+  { nombre: 'Identificación personal y/o pasaporte del Comprador',         tipo: 'requerido' },
+  { nombre: 'Perfil transaccional del comprador',                          tipo: 'requerido' },
+  { nombre: 'Detalle del bien objeto del contrato',                        tipo: 'requerido' },
+  { nombre: 'Forma de pago del Bien Inmueble',                             tipo: 'requerido' },
+  { nombre: 'Sustento de procedencia de fondos',                           tipo: 'requerido' },
+  // CONDICIONALES — generan advertencia si faltan, pero no bloquean
+  { nombre: 'Carta de Trabajo (persona natural con empleo)',               tipo: 'condicional' },
+  { nombre: 'Ficha/Declaración de Renta (persona natural)',                tipo: 'condicional' },
+  { nombre: 'Escritura Pública (si ya fue firmada)',                       tipo: 'condicional' },
+  { nombre: 'Financiamiento bancario (si hay préstamo)',                   tipo: 'condicional' },
+  { nombre: 'Avalúos (si hay financiamiento)',                             tipo: 'condicional' },
+  { nombre: 'Recibo abono inicial (si hubo abono)',                        tipo: 'condicional' },
+  { nombre: 'Recibos pagos parciales (si hay pagos parciales)',            tipo: 'condicional' },
+  { nombre: 'Sustento cheques/ACH/transferencias (si aplica)',             tipo: 'condicional' },
+  // OPCIONALES — complementarios, no generan bloqueo ni advertencia
+  { nombre: 'Referencias Bancarias',                                       tipo: 'opcional' },
+  { nombre: 'Referencias Comerciales',                                     tipo: 'opcional' },
 ];
 
-function seedDocs(plantillaId: string, lista: string[], prefix: string) {
-  lista.forEach((nombre, i) =>
-    insertDocReq.run(`${prefix}_${i + 1}`, plantillaId, nombre, i + 1),
-  );
+function seedDocs(plantillaId: string, lista: DocEntry[], prefix: string) {
+  lista.forEach((entry, i) => {
+    const nombre = typeof entry === 'string' ? entry : entry.nombre;
+    const tipo   = typeof entry === 'string' ? 'requerido' : entry.tipo;
+    insertDocReq.run(`${prefix}_${i + 1}`, plantillaId, nombre, tipo, i + 1);
+  });
 }
 seedDocs('pl_bank_natural', bankNatural, 'dr_bn');
 seedDocs('pl_bank_legal',   bankLegal,   'dr_bl');
@@ -248,6 +260,15 @@ const usuariosDemo: Array<[string, string, string, string, string | null]> = [
 ];
 for (const [id, nombre, correo, rolId, soId] of usuariosDemo) {
   insertUser.run(id, nombre, correo, hash, rolId, soId);
+}
+
+// Restaura secretos MFA para no invalidar QR ya configurados en dev
+if (mfaBackup.length > 0) {
+  const restoreMfa = db.prepare(
+    'UPDATE usuario SET mfa_secret = ?, mfa_activo = 1 WHERE id = ?',
+  );
+  for (const u of mfaBackup) restoreMfa.run(u.mfa_secret, u.id);
+  console.log(`  • MFA restaurado para ${mfaBackup.length} usuario(s) — QR sin cambios`);
 }
 
 // =====================================================================

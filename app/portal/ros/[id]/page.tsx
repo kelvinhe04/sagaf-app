@@ -226,6 +226,7 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
                 docReqId={dr.id}
                 index={i + 1}
                 nombre={dr.nombre}
+                readOnly={ros.estado !== 'borrador'}
                 adjunto={adj ? {
                   id: adj.id,
                   nombre_archivo: adj.nombre_archivo,

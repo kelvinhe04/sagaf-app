@@ -7,7 +7,7 @@ import { NuevoRosForm } from '../../nuevo/NuevoRosForm';
 
 interface SujetoRow { id: string; nombre: string; tipo: string }
 interface PlantillaRow { id: string; nombre: string; tipo_sujeto_obligado: string }
-interface DocRow { id: string; plantilla_id: string; nombre: string; orden: number }
+interface DocRow { id: string; plantilla_id: string; nombre: string; orden: number; tipo_requerimiento: string }
 
 interface RosRow {
   id: string; numero_ros: string; plantilla_id: string;
@@ -60,7 +60,7 @@ export default async function EditarBorradorPage({ params }: { params: Promise<{
   ).all(soId);
 
   const docs = db.prepare<[], DocRow>(
-    'SELECT id, plantilla_id, nombre, orden FROM documento_requerido ORDER BY plantilla_id, orden',
+    'SELECT id, plantilla_id, nombre, orden, tipo_requerimiento FROM documento_requerido ORDER BY plantilla_id, orden',
   ).all();
 
   const docsByPlantilla: Record<string, DocRow[]> = {};

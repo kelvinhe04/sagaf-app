@@ -2,9 +2,10 @@
 import { useRef, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, CheckCircle, FileText, AlertCircle, User, Building2, Shield, FileCheck, Save } from 'lucide-react';
+import { ConfirmModal } from '@/components/ConfirmModal';
 
 interface Plantilla { id: string; nombre: string; tipo_sujeto_obligado: string }
-interface DocReq    { id: string; plantilla_id: string; nombre: string; orden: number }
+interface DocReq    { id: string; plantilla_id: string; nombre: string; orden: number; tipo_requerimiento: string }
 
 interface PartyState {
   id: string;
@@ -144,6 +145,7 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showCondicionalModal, setShowCondicionalModal] = useState(false);
 
   const effectivePlantillaId = useMemo(() => {
     if (!isBank) return plantillaId || defaultPlantilla;
@@ -245,27 +247,11 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
     return true;
   }
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null); setSuccess(null);
+  function isDocUploaded(docId: string): boolean {
+    return !!(files[docId] || fileLabels[docId]);
+  }
 
-    if (!descripcion.trim() || descripcion.length < 30) {
-      setError('La descripción narrativa debe tener al menos 30 caracteres.');
-      return;
-    }
-    if (!monto || Number.isNaN(Number(monto)) || Number(monto) <= 0) {
-      setError('El monto debe ser un número mayor a 0.');
-      return;
-    }
-    if (isBank && !ordenante.id.trim()) {
-      setError('Debe registrar al menos la cédula del ordenante.');
-      return;
-    }
-    if (isRealEstate && !comprador.id.trim()) {
-      setError('Debe registrar la cédula del comprador.');
-      return;
-    }
-
+  async function doSubmit() {
     setSubmitting(true);
     try {
       const body = buildBody();
@@ -304,6 +290,48 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null); setSuccess(null);
+
+    if (!descripcion.trim() || descripcion.length < 30) {
+      setError('La descripción narrativa debe tener al menos 30 caracteres.');
+      return;
+    }
+    if (!monto || Number.isNaN(Number(monto)) || Number(monto) <= 0) {
+      setError('El monto debe ser un número mayor a 0.');
+      return;
+    }
+    if (isBank && !ordenante.id.trim()) {
+      setError('Debe registrar al menos la cédula del ordenante.');
+      return;
+    }
+    if (isRealEstate && !comprador.id.trim()) {
+      setError('Debe registrar la cédula del comprador.');
+      return;
+    }
+
+    // Documentos obligatorios (requerido) — bloquean el envío
+    const missingRequired = docList.filter(
+      (d) => d.tipo_requerimiento === 'requerido' && !isDocUploaded(d.id),
+    );
+    if (missingRequired.length > 0) {
+      setError('Complete los documentos obligatorios marcados en rojo para enviar el ROS.');
+      return;
+    }
+
+    // Documentos condicionales faltantes — advertencia con confirmación
+    const missingConditional = docList.filter(
+      (d) => d.tipo_requerimiento === 'condicional' && !isDocUploaded(d.id),
+    );
+    if (missingConditional.length > 0) {
+      setShowCondicionalModal(true);
+      return;
+    }
+
+    await doSubmit();
   }
 
   async function onSaveDraft(e: React.MouseEvent) {
@@ -518,6 +546,13 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
           <div className="doc-grid">
             {docList.map((d, i) => {
               const file = files[d.id] ?? null;
+              const uploaded = file || fileLabels[d.id];
+              const tipoBadge =
+                d.tipo_requerimiento === 'requerido'   ? 'red'   :
+                d.tipo_requerimiento === 'condicional' ? 'amber' : 'gray';
+              const tipoLabel =
+                d.tipo_requerimiento === 'requerido'   ? 'Requerido'     :
+                d.tipo_requerimiento === 'condicional' ? 'Si aplica'     : 'Complementario';
               return (
                 <div key={d.id} className={`doc-card${file ? ' uploaded' : ''}`}>
                   <div className="doc-top">
@@ -525,9 +560,12 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
                       <FileText size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5, opacity: .6 }} />
                       {i + 1}. {d.nombre}
                     </div>
-                    <span className={`badge ${file || fileLabels[d.id] ? 'green' : 'amber'}`}>
-                      {file ? 'Listo para subir' : fileLabels[d.id] ? 'Adjunto guardado' : 'Pendiente'}
-                    </span>
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
+                      <span className={`badge ${tipoBadge}`}>{tipoLabel}</span>
+                      <span className={`badge ${uploaded ? 'green' : 'amber'}`}>
+                        {file ? 'Listo para subir' : fileLabels[d.id] ? 'Adjunto guardado' : 'Pendiente'}
+                      </span>
+                    </div>
                   </div>
                   {fileLabels[d.id] && !file ? (
                     <div className="upload-zone has-file">
@@ -640,6 +678,17 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
         </div>
 
       </div>
+
+      <ConfirmModal
+        isOpen={showCondicionalModal}
+        variant="warning"
+        title="Documentos condicionales faltantes"
+        message="Faltan documentos condicionales. ¿Desea enviar igual? La UAF puede solicitar subsanación."
+        confirmLabel="Enviar de todas formas"
+        cancelLabel="Revisar documentos"
+        onConfirm={() => { setShowCondicionalModal(false); doSubmit(); }}
+        onCancel={() => setShowCondicionalModal(false)}
+      />
     </form>
   );
 }

@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS documento_requerido (
   nombre              TEXT NOT NULL,
   descripcion         TEXT,
   obligatorio         INTEGER NOT NULL DEFAULT 1,
+  tipo_requerimiento  TEXT NOT NULL DEFAULT 'requerido',  -- requerido | condicional | opcional
   formatos_permitidos TEXT NOT NULL DEFAULT 'pdf,jpg,png,doc,docx,xls,xlsx',
   tamano_maximo_mb    INTEGER NOT NULL DEFAULT 10,
   orden               INTEGER NOT NULL,
