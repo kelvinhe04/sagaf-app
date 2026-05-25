@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, CheckCircle, FileText, AlertCircle, User, Building2, Shield, FileCheck } from 'lucide-react';
+import { Upload, CheckCircle, FileText, AlertCircle, User, Building2, Shield, FileCheck, Save } from 'lucide-react';
 
 interface Plantilla { id: string; nombre: string; tipo_sujeto_obligado: string }
 interface DocReq    { id: string; plantilla_id: string; nombre: string; orden: number }
@@ -13,12 +13,33 @@ interface PartyState {
   message?: string;
 }
 
+interface InitialData {
+  rosId: string;
+  plantillaId: string;
+  oficial: string;
+  correoOficial: string;
+  fechaDeteccion: string;
+  descripcion: string;
+  monto: number;
+  jurisdiccion: string;
+  senalAlerta: string;
+  productoServicio: string;
+  bienInmueble: string;
+  formaPago: string;
+  tipoCliente: 'natural' | 'juridica';
+  ordenante: PartyState;
+  beneficiario: PartyState;
+  comprador: PartyState;
+  uploadedDocs: Record<string, string>;
+}
+
 interface Props {
   sujeto: { id: string; nombre: string; tipo: string };
   plantillas: Plantilla[];
   docsByPlantilla: Record<string, DocReq[]>;
   oficialDefault: string;
   correoDefault: string;
+  initialData?: InitialData;
 }
 
 function FileDropZone({
@@ -84,32 +105,40 @@ function FileDropZone({
   );
 }
 
-export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefault, correoDefault }: Props) {
+export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefault, correoDefault, initialData }: Props) {
+  const esEdicion = !!initialData;
   const router = useRouter();
   const isBank = sujeto.tipo === 'bank';
   const isRealEstate = sujeto.tipo === 'realestate';
 
-  const defaultPlantilla = plantillas[0]?.id ?? '';
+  const defaultPlantilla = initialData?.plantillaId ?? plantillas[0]?.id ?? '';
   const [plantillaId, setPlantillaId] = useState(defaultPlantilla);
-  const [tipoCliente, setTipoCliente] = useState<'natural' | 'juridica'>('natural');
+  const [tipoCliente, setTipoCliente] = useState<'natural' | 'juridica'>(initialData?.tipoCliente ?? 'natural');
 
-  const [ordenante, setOrdenante] = useState<PartyState>({ id: '', status: 'idle', nombre: '' });
-  const [beneficiario, setBeneficiario] = useState<PartyState>({ id: '', status: 'idle', nombre: '' });
-  const [comprador, setComprador] = useState<PartyState>({ id: '', status: 'idle', nombre: '' });
+  const [ordenante, setOrdenante] = useState<PartyState>(
+    initialData?.ordenante ?? { id: '', status: 'idle', nombre: '' }
+  );
+  const [beneficiario, setBeneficiario] = useState<PartyState>(
+    initialData?.beneficiario ?? { id: '', status: 'idle', nombre: '' }
+  );
+  const [comprador, setComprador] = useState<PartyState>(
+    initialData?.comprador ?? { id: '', status: 'idle', nombre: '' }
+  );
 
-  const [monto, setMonto] = useState('');
-  const [jurisdiccion, setJurisdiccion] = useState('');
-  const [senalAlerta, setSenalAlerta] = useState('Movimientos incompatibles con el perfil');
-  const [productoServicio, setProductoServicio] = useState('');
-  const [bienInmueble, setBienInmueble] = useState('');
-  const [formaPago, setFormaPago] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [oficial, setOficial] = useState(oficialDefault);
-  const [correoOficial, setCorreoOficial] = useState(correoDefault);
-  const [fechaDeteccion, setFechaDeteccion] = useState(new Date().toISOString().slice(0, 10));
+  const [monto, setMonto] = useState(initialData?.monto ? String(initialData.monto) : '');
+  const [jurisdiccion, setJurisdiccion] = useState(initialData?.jurisdiccion ?? '');
+  const [senalAlerta, setSenalAlerta] = useState(initialData?.senalAlerta ?? 'Movimientos incompatibles con el perfil');
+  const [productoServicio, setProductoServicio] = useState(initialData?.productoServicio ?? '');
+  const [bienInmueble, setBienInmueble] = useState(initialData?.bienInmueble ?? '');
+  const [formaPago, setFormaPago] = useState(initialData?.formaPago ?? '');
+  const [descripcion, setDescripcion] = useState(initialData?.descripcion ?? '');
+  const [oficial, setOficial] = useState(initialData?.oficial ?? oficialDefault);
+  const [correoOficial, setCorreoOficial] = useState(initialData?.correoOficial ?? correoDefault);
+  const [fechaDeteccion, setFechaDeteccion] = useState(initialData?.fechaDeteccion ?? new Date().toISOString().slice(0, 10));
 
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [extras, setExtras] = useState<File[]>([]);
+  const [fileLabels, setFileLabels] = useState<Record<string, string>>(initialData?.uploadedDocs ?? {});
 
   const [pending, startTransition] = useTransition();
   const [submitting, setSubmitting] = useState(false);
@@ -158,6 +187,64 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
     }
   }
 
+  function buildPartes() {
+    const partes: Array<{ rol: string; tipo: string; identificador: string; nombre_visible: string }> = [];
+    if (isBank) {
+      if (ordenante.id.trim())
+        partes.push({ rol: 'ordenante', tipo: tipoCliente, identificador: ordenante.id.trim(), nombre_visible: ordenante.nombre });
+      if (beneficiario.id.trim())
+        partes.push({ rol: 'beneficiario', tipo: tipoCliente, identificador: beneficiario.id.trim(), nombre_visible: beneficiario.nombre });
+    }
+    if (isRealEstate && comprador.id.trim()) {
+      partes.push({ rol: 'comprador', tipo: 'natural', identificador: comprador.id.trim(), nombre_visible: comprador.nombre });
+    }
+    return partes;
+  }
+
+  function buildBody() {
+    return {
+      plantilla_id: effectivePlantillaId,
+      oficial_cumplimiento: oficial,
+      correo_oficial: correoOficial,
+      fecha_deteccion: fechaDeteccion,
+      descripcion: esEdicion ? descripcion : descripcion,
+      operacion: {
+        monto: monto ? Number(monto) : 0,
+        jurisdiccion,
+        senal_alerta: senalAlerta,
+        producto_servicio: isBank ? productoServicio : null,
+        bien_inmueble: isRealEstate ? bienInmueble : null,
+        forma_pago: isRealEstate ? formaPago : null,
+        tipo_operacion: isBank ? 'bancaria' : 'inmobiliaria',
+      },
+      partes: buildPartes(),
+    };
+  }
+
+  async function uploadFiles(rosId: string) {
+    for (const docReq of docList) {
+      const file = files[docReq.id];
+      if (!file) continue;
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('ros_id', rosId);
+      fd.append('documento_requerido_id', docReq.id);
+      const up = await fetch('/api/documentos/upload', { method: 'POST', body: fd });
+      if (!up.ok) {
+        const upErr = await up.json().catch(() => ({}));
+        setError(`Error subiendo "${docReq.nombre}": ${upErr.error ?? 'Error de subida'}`);
+        return false;
+      }
+    }
+    for (const extra of extras) {
+      const fd = new FormData();
+      fd.append('file', extra);
+      fd.append('ros_id', rosId);
+      await fetch('/api/documentos/upload', { method: 'POST', body: fd });
+    }
+    return true;
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null); setSuccess(null);
@@ -181,68 +268,81 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
 
     setSubmitting(true);
     try {
-      const partes: Array<{ rol: string; tipo: string; identificador: string; nombre_visible: string }> = [];
-      if (isBank) {
-        if (ordenante.id.trim())
-          partes.push({ rol: 'ordenante', tipo: tipoCliente, identificador: ordenante.id.trim(), nombre_visible: ordenante.nombre });
-        if (beneficiario.id.trim())
-          partes.push({ rol: 'beneficiario', tipo: tipoCliente, identificador: beneficiario.id.trim(), nombre_visible: beneficiario.nombre });
-      }
-      if (isRealEstate && comprador.id.trim()) {
-        partes.push({ rol: 'comprador', tipo: 'natural', identificador: comprador.id.trim(), nombre_visible: comprador.nombre });
+      const body = buildBody();
+      let rosId: string;
+      let numeroRos: string;
+
+      if (esEdicion) {
+        const res = await fetch(`/api/ros/${initialData!.rosId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...body, submit: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) { setError(data.error ?? 'Error al enviar el ROS.'); return; }
+        rosId = initialData!.rosId;
+        numeroRos = data.numero_ros;
+      } else {
+        const res = await fetch('/api/ros', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) { setError(data.error ?? 'No fue posible crear el ROS.'); return; }
+        rosId = data.id;
+        numeroRos = data.numero_ros;
       }
 
-      const res = await fetch('/api/ros', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plantilla_id: effectivePlantillaId,
-          oficial_cumplimiento: oficial,
-          correo_oficial: correoOficial,
-          fecha_deteccion: fechaDeteccion,
-          descripcion,
-          operacion: {
-            monto: Number(monto),
-            jurisdiccion,
-            senal_alerta: senalAlerta,
-            producto_servicio: isBank ? productoServicio : null,
-            bien_inmueble: isRealEstate ? bienInmueble : null,
-            forma_pago: isRealEstate ? formaPago : null,
-            tipo_operacion: isBank ? 'bancaria' : 'inmobiliaria',
-          },
-          partes,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? 'No fue posible crear el ROS.');
-        return;
-      }
+      const ok = await uploadFiles(rosId);
+      if (!ok) return;
 
-      for (const docReq of docList) {
-        const file = files[docReq.id];
-        if (!file) continue;
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('ros_id', data.id);
-        fd.append('documento_requerido_id', docReq.id);
-        const up = await fetch('/api/documentos/upload', { method: 'POST', body: fd });
-        if (!up.ok) {
-          const upErr = await up.json().catch(() => ({}));
-          setError(`Error subiendo "${docReq.nombre}": ${upErr.error ?? up.statusText}`);
-          return;
-        }
-      }
-      for (const extra of extras) {
-        const fd = new FormData();
-        fd.append('file', extra);
-        fd.append('ros_id', data.id);
-        await fetch('/api/documentos/upload', { method: 'POST', body: fd });
-      }
-
-      setSuccess(`ROS ${data.numero_ros} enviado correctamente a la UAF.`);
+      setSuccess(`ROS ${numeroRos} enviado correctamente a la UAF.`);
       startTransition(() => {
-        setTimeout(() => router.push(`/portal/ros/${data.id}`), 1200);
+        setTimeout(() => router.push(`/portal/ros/${rosId}`), 1200);
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function onSaveDraft(e: React.MouseEvent) {
+    e.preventDefault();
+    setError(null); setSuccess(null);
+    setSubmitting(true);
+    try {
+      const body = buildBody();
+      let rosId: string;
+      let numeroRos: string;
+
+      if (esEdicion) {
+        const res = await fetch(`/api/ros/${initialData!.rosId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...body, submit: false }),
+        });
+        const data = await res.json();
+        if (!res.ok) { setError(data.error ?? 'Error al guardar borrador.'); return; }
+        rosId = initialData!.rosId;
+        numeroRos = data.numero_ros;
+      } else {
+        const res = await fetch('/api/ros', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...body, modo: 'borrador' }),
+        });
+        const data = await res.json();
+        if (!res.ok) { setError(data.error ?? 'No fue posible guardar el borrador.'); return; }
+        rosId = data.id;
+        numeroRos = data.numero_ros;
+      }
+
+      const ok = await uploadFiles(rosId);
+      if (!ok) return;
+
+      setSuccess(`Borrador ${numeroRos} guardado.`);
+      startTransition(() => {
+        setTimeout(() => router.push(`/portal/ros/${rosId}`), 1200);
       });
     } finally {
       setSubmitting(false);
@@ -425,10 +525,27 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
                       <FileText size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5, opacity: .6 }} />
                       {i + 1}. {d.nombre}
                     </div>
-                    <span className={`badge ${file ? 'green' : 'amber'}`}>
-                      {file ? 'Cargado' : 'Pendiente'}
+                    <span className={`badge ${file || fileLabels[d.id] ? 'green' : 'amber'}`}>
+                      {file ? 'Listo para subir' : fileLabels[d.id] ? 'Adjunto guardado' : 'Pendiente'}
                     </span>
                   </div>
+                  {fileLabels[d.id] && !file ? (
+                    <div className="upload-zone has-file">
+                      <div className="upload-zone-content">
+                        <CheckCircle size={18} className="upload-zone-icon uploaded" />
+                        <div>
+                          <div className="upload-zone-filename">{fileLabels[d.id]}</div>
+                          <div className="upload-zone-size">Adjunto del borrador (reemplazar si se desea)</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="upload-zone-remove"
+                          onClick={(e) => { e.stopPropagation(); setFileLabels({ ...fileLabels, [d.id]: '' }); }}
+                          aria-label="Quitar archivo"
+                        >×</button>
+                      </div>
+                    </div>
+                  ) : null}
                   <FileDropZone
                     file={file}
                     onChange={(f) => setFiles({ ...files, [d.id]: f })}
@@ -501,11 +618,21 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
             ) : (
               <>
                 <FileCheck size={16} />
-                Enviar ROS a la UAF
+                {esEdicion ? 'Enviar a la UAF' : 'Enviar ROS a la UAF'}
               </>
             )}
           </button>
-          {docList.length > 0 && cargados < docList.length && (
+          <button
+            type="button"
+            className="btn secondary"
+            disabled={submitting || pending}
+            style={{ minWidth: 160, justifyContent: 'center' }}
+            onClick={onSaveDraft}
+          >
+            <Save size={16} />
+            {esEdicion ? 'Guardar borrador' : 'Guardar borrador'}
+          </button>
+          {!esEdicion && docList.length > 0 && cargados < docList.length && (
             <div className="helper" style={{ margin: 0, alignSelf: 'center' }}>
               {docList.length - cargados} documento{docList.length - cargados > 1 ? 's' : ''} pendiente{docList.length - cargados > 1 ? 's' : ''} — puede enviar con documentos faltantes.
             </div>

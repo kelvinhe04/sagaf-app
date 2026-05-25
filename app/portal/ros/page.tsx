@@ -23,6 +23,7 @@ interface RosResumen {
 
 const ESTADOS_FILTRO = [
   { valor: '',                  label: 'Todos' },
+  { valor: 'borrador',          label: 'Borradores' },
   { valor: 'recibido',          label: 'Recibido' },
   { valor: 'en_analisis',       label: 'En análisis' },
   { valor: 'revision_documental', label: 'Revisión documental' },
@@ -182,13 +183,23 @@ export default async function MisROS({
                         : <span className="small">—</span>}
                     </td>
                     <td>
-                      <Link
-                        href={`/portal/ros/${r.id}`}
-                        className="btn ghost"
-                        style={{ padding: '7px 12px', fontSize: 12 }}
-                      >
-                        Ver detalle
-                      </Link>
+                      {r.estado === 'borrador' ? (
+                        <Link
+                          href={`/portal/ros/${r.id}/editar`}
+                          className="btn primary"
+                          style={{ padding: '7px 12px', fontSize: 12 }}
+                        >
+                          Continuar
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/portal/ros/${r.id}`}
+                          className="btn ghost"
+                          style={{ padding: '7px 12px', fontSize: 12 }}
+                        >
+                          Ver detalle
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))}

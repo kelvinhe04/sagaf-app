@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
@@ -114,13 +115,17 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
         eyebrow="Detalle del ROS"
         title={`${ros.numero_ros} · ${estadoLabel(ros.estado)}`}
         description="Visualiza el estado, completitud documental y solicitudes de subsanación de la UAF."
-        right={
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <BackButton href="/portal" label="Mis ROS" />
-            <Badge tone={estadoTone(ros.estado)}>{estadoLabel(ros.estado)}</Badge>
-          </div>
-        }
       />
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 20 }}>
+        <BackButton href="/portal/ros" label="Mis ROS" />
+        {ros.estado === 'borrador' && (
+          <Link href={`/portal/ros/${ros.id}/editar`} className="btn primary" style={{ padding: '7px 12px', fontSize: 12 }}>
+            Continuar edición
+          </Link>
+        )}
+        <Badge tone={estadoTone(ros.estado)}>{estadoLabel(ros.estado)}</Badge>
+      </div>
 
       <div className="uaf-layout">
         <div className="card">

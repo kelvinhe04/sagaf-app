@@ -14,7 +14,7 @@ const schema = z.object({
   oficial_cumplimiento: z.string().min(2),
   correo_oficial: z.string().email().optional(),
   fecha_deteccion: z.string().min(8),
-  descripcion: z.string().min(30, 'La descripción debe tener al menos 30 caracteres'),
+  descripcion: z.string().min(1),
   operacion: z.object({
     monto: z.number().positive(),
     jurisdiccion: z.string().optional().nullable(),
@@ -30,6 +30,7 @@ const schema = z.object({
     identificador: z.string().min(3),
     nombre_visible: z.string().optional().nullable(),
   })).min(1),
+  modo: z.enum(['completo', 'borrador']).optional().default('completo'),
 });
 
 export async function POST(req: Request) {
@@ -55,10 +56,32 @@ export async function POST(req: Request) {
   }
 
   const payload = await req.json().catch(() => null);
-  const parsed = schema.safeParse(payload);
+  const baseSchema = payload?.modo === 'borrador'
+    ? schema.extend({
+        partes: z.array(z.object({
+          rol: z.string().min(1),
+          tipo: z.enum(['natural', 'juridica']),
+          identificador: z.string().min(3),
+          nombre_visible: z.string().optional().nullable(),
+        })).optional().default([]),
+        descripcion: z.string().optional().default(''),
+        operacion: z.object({
+          monto: z.number().positive().optional().default(0),
+          jurisdiccion: z.string().optional().nullable(),
+          senal_alerta: z.string().optional().default(''),
+          producto_servicio: z.string().optional().nullable(),
+          bien_inmueble: z.string().optional().nullable(),
+          forma_pago: z.string().optional().nullable(),
+          tipo_operacion: z.string().optional().nullable(),
+        }),
+      })
+    : schema;
+  const parsed = baseSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json({ error: 'Datos inválidos', issues: parsed.error.flatten() }, { status: 400 });
   }
+
+  const esBorrador = parsed.data.modo === 'borrador';
 
   // Verifica que la plantilla esté habilitada para este sujeto obligado
   const plOk = db.prepare(
@@ -78,11 +101,12 @@ export async function POST(req: Request) {
       INSERT INTO ros (id, numero_ros, sujeto_obligado_id, plantilla_id,
                        oficial_cumplimiento, correo_oficial, fecha_deteccion,
                        estado, descripcion, canal_recepcion, creado_por)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'recibido', ?, 'portal_publico', ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'portal_publico', ?)
     `).run(
       rosId, numeroRos, subject.sujeto_obligado_id, parsed.data.plantilla_id,
       parsed.data.oficial_cumplimiento, parsed.data.correo_oficial ?? null,
-      parsed.data.fecha_deteccion, parsed.data.descripcion, subject.id,
+      parsed.data.fecha_deteccion, esBorrador ? 'borrador' : 'recibido',
+      parsed.data.descripcion, subject.id,
     );
 
     db.prepare(`
@@ -111,11 +135,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Caso de análisis abierto automáticamente
-    db.prepare(`
-      INSERT INTO caso_analisis (id, codigo_caso, ros_id, estado)
-      VALUES (?, ?, ?, 'abierto')
-    `).run(randomUUID(), `CASO-${numeroRos.replace('ROS-', '')}`, rosId);
+    if (!esBorrador) {
+      db.prepare(`
+        INSERT INTO caso_analisis (id, codigo_caso, ros_id, estado)
+        VALUES (?, ?, ?, 'abierto')
+      `).run(randomUUID(), `CASO-${numeroRos.replace('ROS-', '')}`, rosId);
+    }
 
     return { id: rosId, numero_ros: numeroRos };
   });
@@ -124,7 +149,7 @@ export async function POST(req: Request) {
 
   audit({
     modulo: 'ros',
-    accion: 'crear_ros',
+    accion: esBorrador ? 'guardar_borrador' : 'crear_ros',
     resultado: 'exito',
     usuario_id: subject.id,
     usuario_correo: subject.correo,
@@ -132,7 +157,7 @@ export async function POST(req: Request) {
     ip: ctx.ip,
     user_agent: ctx.user_agent,
     recurso_afectado: result.numero_ros,
-    detalle: { partes: parsed.data.partes.length, monto: parsed.data.operacion.monto },
+    detalle: { partes: parsed.data.partes.length, monto: parsed.data.operacion.monto, modo: parsed.data.modo },
   });
 
   return NextResponse.json(result, { status: 201 });

@@ -21,6 +21,7 @@ export function riskTone(nivel: string): Tone {
 
 export function estadoTone(estado: string): Tone {
   switch (estado) {
+    case 'borrador':            return 'gray';
     case 'recibido':            return 'blue';
     case 'en_analisis':         return 'blue';
     case 'revision_documental': return 'amber';

@@ -3,6 +3,7 @@
 export type Role = 'sujeto_obligado' | 'analista' | 'supervisor' | 'auditor' | 'admin';
 
 export type RosEstado =
+  | 'borrador'
   | 'recibido'
   | 'en_analisis'
   | 'revision_documental'

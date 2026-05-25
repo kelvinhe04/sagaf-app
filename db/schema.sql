@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS ros (
   fecha_deteccion      TEXT NOT NULL,
   fecha_recepcion      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   estado               TEXT NOT NULL DEFAULT 'recibido',
-  -- recibido | en_analisis | revision_documental | subsanacion | escalado | cerrado | vinculado
+  -- borrador | recibido | en_analisis | revision_documental | subsanacion | escalado | cerrado | vinculado
   descripcion          TEXT NOT NULL,
   canal_recepcion      TEXT NOT NULL DEFAULT 'portal_publico',
   creado_por           TEXT NOT NULL,
