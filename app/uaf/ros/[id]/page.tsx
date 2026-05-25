@@ -132,7 +132,6 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
     ? 0
     : Math.round((docsAdj.filter((d) => d.documento_requerido_id).length / docsReq.length) * 100);
 
-  const userInitials = (session.user.name ?? 'AU').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const canClassify = ['analista', 'supervisor'].includes(session.user.rol);
   const canClose = session.user.rol === 'supervisor';
 
@@ -142,9 +141,6 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
         eyebrow="Expediente del ROS"
         title={`${ros.numero_ros} · ${ros.sujeto_tipo === 'bank' ? 'Banco' : ros.sujeto_tipo === 'realestate' ? 'Inmobiliaria' : ros.sujeto_tipo}`}
         description="Reporte recibido desde el portal público. Datos sensibles enmascarados por defecto (Ley 81)."
-        userInitials={userInitials}
-        userName={session.user.name ?? ''}
-        userBadge={`${session.user.rol === 'supervisor' ? 'Supervisor' : 'Analista'} · MFA activo`}
         right={
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <BackButton href="/uaf" label="Bandeja" />

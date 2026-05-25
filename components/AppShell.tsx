@@ -11,12 +11,14 @@ export type { NavItem };
 interface Props {
   role: Role;
   userName: string;
+  userInitials?: string;
+  userBadge?: string;
   navItems: NavItem[];
   note?: string;
   children: ReactNode;
 }
 
-export function AppShell({ role, userName, navItems, note, children }: Props) {
+export function AppShell({ role, userName, userInitials, userBadge, navItems, note, children }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -63,6 +65,15 @@ export function AppShell({ role, userName, navItems, note, children }: Props) {
           <span className="mobile-header-title">SAGAF</span>
         </div>
 
+        <div className="user-chip-corner">
+          <div className="user-chip">
+            <div className="avatar">{userInitials ?? userName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}</div>
+            <div>
+              <strong>{userName}</strong>
+              <div className="small">{userBadge ?? 'MFA activo'}</div>
+            </div>
+          </div>
+        </div>
         {children}
       </main>
     </div>

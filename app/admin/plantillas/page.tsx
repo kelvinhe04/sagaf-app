@@ -31,17 +31,12 @@ export default async function PlantillasAdmin() {
     `,
   ).all();
 
-  const userInitials = (session!.user.name ?? 'AD').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Plantillas ROS"
         title="Plantillas dinámicas por sector"
         description="Define la estructura de un ROS según el tipo de sujeto obligado. El sistema admite nuevas plantillas sin necesidad de rediseñar la solución."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="Administrador · MFA activo"
       />
 
       <div className="card">

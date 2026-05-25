@@ -107,17 +107,12 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
 
   const adjByReq = new Map(docsAdj.filter((d) => d.documento_requerido_id).map((d) => [d.documento_requerido_id!, d]));
 
-  const userInitials = (session.user.name ?? 'SO').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Detalle del ROS"
         title={`${ros.numero_ros} · ${estadoLabel(ros.estado)}`}
         description="Visualiza el estado, completitud documental y solicitudes de subsanación de la UAF."
-        userInitials={userInitials}
-        userName={session.user.name ?? ''}
-        userBadge="MFA activo"
         right={
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <BackButton href="/portal" label="Mis ROS" />

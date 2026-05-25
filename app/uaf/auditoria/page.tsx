@@ -36,17 +36,12 @@ export default async function UafAuditoriaPage({ searchParams }: { searchParams:
     detalle: filters,
   });
 
-  const userInitials = (session!.user.name ?? 'UA').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Trazabilidad y auditoría"
         title="Historial de auditoría del sistema"
         description="Log inmutable de acciones realizadas en SAGAF. La consulta a este log también queda registrada."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="MFA activo · Acceso por caso"
       />
 
       <div className="card">

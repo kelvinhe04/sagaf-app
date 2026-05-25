@@ -35,17 +35,12 @@ export default async function SujetosAdmin() {
     `SELECT id, nombre, tipo_sujeto_obligado FROM plantilla_ros WHERE activa = 1 ORDER BY nombre`,
   ).all();
 
-  const userInitials = (session!.user.name ?? 'AD').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Gestión de sujetos obligados"
         title="Sujetos obligados"
         description="Registra, clasifica y administra sujetos obligados. Cada uno debe tener tipo, sector y plantilla ROS asociada. El registro queda auditado."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="Administrador · MFA activo"
       />
 
       <div className="card">

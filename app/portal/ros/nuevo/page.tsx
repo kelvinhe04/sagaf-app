@@ -58,17 +58,12 @@ export default async function NuevoRosPage() {
     }
   }
 
-  const userInitials = (session.user.name ?? 'SO').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Recepción y registro"
         title="Registrar nuevo Reporte de Operación Sospechosa"
         description="Complete el formulario según el tipo de operación. Cada documento tiene su propio contenedor de carga. La verificación de identidad muestra únicamente el nombre para corroboración."
-        userInitials={userInitials}
-        userName={session.user.name ?? ''}
-        userBadge={`${so.nombre} · MFA activo`}
         right={<BackButton href="/portal" label="Inicio" />}
       />
 

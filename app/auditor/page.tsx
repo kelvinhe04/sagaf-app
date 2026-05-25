@@ -44,17 +44,12 @@ export default async function AuditorHome({ searchParams }: { searchParams: Prom
   const criticos    = db.prepare<[], { c: number }>(`SELECT COUNT(*) AS c FROM evento_auditoria WHERE criticidad = 'critica'`).get()!.c;
   const mfaFails    = db.prepare<[], { c: number }>(`SELECT COUNT(*) AS c FROM evento_auditoria WHERE accion = 'mfa_verify_failed'`).get()!.c;
 
-  const userInitials = (session!.user.name ?? 'AU').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Auditoría interna"
         title="Auditoría del sistema SAGAF"
         description="Acceso de solo lectura al log inmutable de eventos. No tienes acceso a contenido de ROS, solo a las acciones que se realizaron sobre ellos."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="Acceso de solo lectura"
       />
 
       <div className="kpis">

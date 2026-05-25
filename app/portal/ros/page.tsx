@@ -72,7 +72,6 @@ export default async function MisROS({
   }
 
   const tipoLabel = so?.tipo === 'bank' ? 'Banco' : so?.tipo === 'realestate' ? 'Inmobiliaria' : so?.tipo ?? '';
-  const userInitials = (session!.user.name ?? 'SO').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
     <>
@@ -80,9 +79,6 @@ export default async function MisROS({
         eyebrow="Portal del Sujeto Obligado"
         title="Mis Reportes de Operaciones Sospechosas"
         description={`Historial completo de reportes enviados por ${so?.nombre ?? 'tu entidad'}. Solo son visibles los ROS de tu organización.`}
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge={`${tipoLabel} · MFA activo`}
       />
 
       <div className="card">

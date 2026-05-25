@@ -76,7 +76,6 @@ export default async function PortalHome() {
 
   const recientes = ros.slice(0, 3);
   const tipoLabel = so?.tipo === 'bank' ? 'Banco' : so?.tipo === 'realestate' ? 'Inmobiliaria' : so?.tipo ?? '';
-  const userInitials = (session!.user.name ?? 'SO').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
     <>
@@ -84,9 +83,6 @@ export default async function PortalHome() {
         eyebrow="Portal del Sujeto Obligado"
         title={`Bienvenido, ${so?.nombre ?? 'Sujeto Obligado'}`}
         description="Registre nuevos Reportes de Operaciones Sospechosas, consulte el estado de sus envíos y atienda las solicitudes de subsanación de la UAF."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge={`${tipoLabel} · MFA activo`}
       />
 
       {/* KPIs */}

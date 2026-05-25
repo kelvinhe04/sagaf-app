@@ -12,10 +12,13 @@ export default async function AuditorLayout({ children }: { children: React.Reac
   if (!session?.user) redirect('/login');
   if (session.user.rol !== 'auditor') redirect('/');
 
+  const userInitials = (session.user.name ?? 'Auditor').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+
   return (
     <AppShell
       role="auditor"
       userName={session.user.name ?? 'Auditor'}
+      userInitials={userInitials}
       navItems={navItems}
       note="Acceso de solo lectura al log de auditoría. No tienes acceso al contenido de los ROS. Cada consulta queda registrada como evento."
     >

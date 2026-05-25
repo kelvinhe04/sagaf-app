@@ -32,17 +32,12 @@ export default async function SubsanacionesPage() {
     `,
   ).all(soId);
 
-  const userInitials = (session!.user.name ?? 'SO').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Subsanación documental"
         title="Solicitudes de subsanación de la UAF"
         description="Atienda las observaciones de la UAF sin crear un ROS nuevo. Suba el archivo corregido desde el detalle del ROS asociado."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="MFA activo"
       />
 
       <div className="card">

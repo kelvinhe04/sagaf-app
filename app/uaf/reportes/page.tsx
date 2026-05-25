@@ -96,7 +96,6 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
     `,
   ).all();
 
-  const userInitials = (session!.user.name ?? 'UA').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const canExport = session!.user.rol === 'supervisor';
 
   return (
@@ -105,9 +104,6 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
         eyebrow="Reportes e inteligencia financiera"
         title="Reportes operativos y estratégicos"
         description="Datos agregados, anonimizados cuando no requieren identificación individual. La exportación queda auditada."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge={session!.user.rol === 'supervisor' ? 'Supervisor · puede exportar' : 'Analista'}
       />
 
       <div className="kpis">

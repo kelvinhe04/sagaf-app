@@ -15,10 +15,13 @@ export default async function UafLayout({ children }: { children: React.ReactNod
   if (!session?.user) redirect('/login');
   if (!['analista', 'supervisor'].includes(session.user.rol)) redirect('/');
 
+  const userInitials = (session.user.name ?? 'UAF').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+
   return (
     <AppShell
       role={session.user.rol === 'supervisor' ? 'supervisor' : 'analista'}
       userName={session.user.name ?? 'UAF'}
+      userInitials={userInitials}
       navItems={navItems}
       note={session.user.rol === 'supervisor'
         ? 'Rol Supervisor: validas acciones críticas, apruebas cierres y exportas reportes.'

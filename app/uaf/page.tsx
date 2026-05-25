@@ -85,17 +85,12 @@ export default async function UafBandeja({ searchParams }: { searchParams: Promi
     .prepare<[], { c: number }>(`SELECT COUNT(*) AS c FROM vinculo_intersectorial WHERE confirmado = 0`)
     .get()?.c ?? 0;
 
-  const userInitials = (session!.user.name ?? 'AU').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Sistema interno de la UAF"
         title="Bandeja de análisis de Reportes de Operaciones Sospechosas"
         description="Vista enfocada en revisar ROS recibidos, priorizar riesgo, verificar sustentos, solicitar subsanaciones y mantener trazabilidad completa sin saturar al analista."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="MFA activo · Acceso por caso"
       />
 
       <div className="kpis">

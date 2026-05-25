@@ -15,10 +15,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session?.user) redirect('/login');
   if (session.user.rol !== 'admin') redirect('/');
 
+  const userInitials = (session.user.name ?? 'Admin').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+
   return (
     <AppShell
       role="admin"
       userName={session.user.name ?? 'Admin'}
+      userInitials={userInitials}
       navItems={navItems}
       note="Como administrador no tienes acceso al contenido sensible de los ROS. Todas tus acciones quedan registradas en auditoría."
     >

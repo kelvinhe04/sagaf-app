@@ -37,17 +37,12 @@ export default async function UsuariosAdmin() {
   const sujetos = db.prepare<[], SujetoRow>(`SELECT id, nombre FROM sujeto_obligado WHERE estado = 'activo' ORDER BY nombre`).all();
   const roles = db.prepare<[], { id: string; nombre: string }>(`SELECT id, nombre FROM rol ORDER BY nombre`).all();
 
-  const userInitials = (session!.user.name ?? 'AD').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Control de acceso y roles"
         title="Gestión de usuarios"
         description="Crea, actualiza o desactiva usuarios. MFA es obligatorio para todos los perfiles. Los sujetos obligados solo gestionan sus propios reportes."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="Administrador · MFA activo"
       />
 
       <div className="card">

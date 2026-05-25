@@ -1,6 +1,7 @@
 'use client';
-import { useMemo, useState, useTransition } from 'react';
+import { useRef, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Upload, CheckCircle, FileText, AlertCircle, User, Building2, Shield, FileCheck } from 'lucide-react';
 
 interface Plantilla { id: string; nombre: string; tipo_sujeto_obligado: string }
 interface DocReq    { id: string; plantilla_id: string; nombre: string; orden: number }
@@ -20,6 +21,69 @@ interface Props {
   correoDefault: string;
 }
 
+function FileDropZone({
+  file,
+  onChange,
+}: {
+  file: File | null;
+  onChange: (f: File | null) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const dropped = e.dataTransfer.files[0];
+    if (dropped) onChange(dropped);
+  };
+
+  return (
+    <div
+      className={`upload-zone${file ? ' has-file' : ''}${dragging ? ' dragging' : ''}`}
+      onClick={() => inputRef.current?.click()}
+      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={handleDrop}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && inputRef.current?.click()}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        style={{ display: 'none' }}
+        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+      />
+      {file ? (
+        <div className="upload-zone-content">
+          <CheckCircle size={18} className="upload-zone-icon uploaded" />
+          <div>
+            <div className="upload-zone-filename">{file.name}</div>
+            <div className="upload-zone-size">{(file.size / 1024).toFixed(1)} KB</div>
+          </div>
+          <button
+            type="button"
+            className="upload-zone-remove"
+            onClick={(e) => { e.stopPropagation(); onChange(null); }}
+            aria-label="Quitar archivo"
+          >
+            ×
+          </button>
+        </div>
+      ) : (
+        <div className="upload-zone-content">
+          <Upload size={16} className="upload-zone-icon" />
+          <div className="upload-zone-empty">
+            <div className="upload-zone-hint">Arrastra o haz clic para subir</div>
+            <div className="upload-zone-types">PDF, JPG, PNG — máx. 10 MB</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefault, correoDefault }: Props) {
   const router = useRouter();
   const isBank = sujeto.tipo === 'bank';
@@ -29,7 +93,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
   const [plantillaId, setPlantillaId] = useState(defaultPlantilla);
   const [tipoCliente, setTipoCliente] = useState<'natural' | 'juridica'>('natural');
 
-  // Si el sujeto es banco, dos partes; si es inmobiliaria, una.
   const [ordenante, setOrdenante] = useState<PartyState>({ id: '', status: 'idle', nombre: '' });
   const [beneficiario, setBeneficiario] = useState<PartyState>({ id: '', status: 'idle', nombre: '' });
   const [comprador, setComprador] = useState<PartyState>({ id: '', status: 'idle', nombre: '' });
@@ -45,7 +108,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
   const [correoOficial, setCorreoOficial] = useState(correoDefault);
   const [fechaDeteccion, setFechaDeteccion] = useState(new Date().toISOString().slice(0, 10));
 
-  // Archivos por documento requerido + evidencias adicionales
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [extras, setExtras] = useState<File[]>([]);
 
@@ -54,7 +116,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Para banco, mostramos plantilla automática según tipoCliente
   const effectivePlantillaId = useMemo(() => {
     if (!isBank) return plantillaId || defaultPlantilla;
     const want = tipoCliente === 'natural'
@@ -65,6 +126,7 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
 
   const docList = docsByPlantilla[effectivePlantillaId] ?? [];
   const cargados = Object.values(files).filter((f) => f).length;
+  const pct = docList.length > 0 ? Math.round((cargados / docList.length) * 100) : 0;
 
   async function verifyParty(
     field: 'ordenante' | 'beneficiario' | 'comprador',
@@ -87,7 +149,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
         return;
       }
       if (data.found) {
-        // Ley 81: SOLO se devuelve nombre. Resto sigue bloqueado.
         setState({ id: state.id, status: 'verified', nombre: data.nombre });
       } else {
         setState({ id: state.id, status: 'not_found', nombre: '', message: 'Sin coincidencia. La UAF validará con la documentación adjunta.' });
@@ -120,7 +181,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
 
     setSubmitting(true);
     try {
-      // 1. Crear ROS
       const partes: Array<{ rol: string; tipo: string; identificador: string; nombre_visible: string }> = [];
       if (isBank) {
         if (ordenante.id.trim())
@@ -159,8 +219,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
         return;
       }
 
-      // 2. Subir documentos individualmente — un fetch por archivo, asociado al docReqId.
-      // Esto previene DEF-15 (archivo en contenedor equivocado).
       for (const docReq of docList) {
         const file = files[docReq.id];
         if (!file) continue;
@@ -175,7 +233,6 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
           return;
         }
       }
-      // 3. Subir evidencias extra
       for (const extra of extras) {
         const fd = new FormData();
         fd.append('file', extra);
@@ -195,7 +252,12 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
   return (
     <form className="card" onSubmit={onSubmit}>
       <div className="form-grid">
-        <div className="section-title">1. Datos generales del ROS</div>
+
+        {/* ── Sección 1: Datos generales ── */}
+        <div className="section-title">
+          <span className="section-num">1</span>
+          Datos generales del ROS
+        </div>
 
         <div className="field">
           <label>Entidad reportante</label>
@@ -214,8 +276,13 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
           <input type="email" value={correoOficial} onChange={(e) => setCorreoOficial(e.target.value)} required placeholder="correo@entidad.com" />
         </div>
 
-        <div className="section-title">2. Validación de personas relacionadas</div>
+        {/* ── Sección 2: Personas relacionadas ── */}
+        <div className="section-title">
+          <span className="section-num">2</span>
+          Validación de personas relacionadas
+        </div>
         <div className="notice" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+          <Shield size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
           <strong>Privacidad (Ley 81/2019)</strong>: si una cédula/RUC ya existe en nuestros registros,
           solo verás el <strong>nombre</strong> para corroboración. No se autocompletan datos sensibles.
         </div>
@@ -230,12 +297,14 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
               </select>
             </div>
             <div className="field full">
-              <div className="helper">Para reportes bancarios, valide por separado al <strong>ordenante</strong> y al <strong>beneficiario</strong>.</div>
+              <div className="helper" style={{ marginBottom: 8 }}>
+                Para reportes bancarios, valide por separado al <strong>ordenante</strong> y al <strong>beneficiario</strong>.
+              </div>
               <div className="lookup-grid">
-                <PartyCard label="Persona que realiza la transacción" role="Ordenante"
+                <PartyCard label="Persona que realiza la transacción" role="Ordenante" icon={<User size={14} />}
                   state={ordenante} setState={setOrdenante}
                   onVerify={() => verifyParty('ordenante', ordenante, setOrdenante)} />
-                <PartyCard label="Beneficiario" role="Beneficiario"
+                <PartyCard label="Beneficiario" role="Beneficiario" icon={<User size={14} />}
                   state={beneficiario} setState={setBeneficiario}
                   onVerify={() => verifyParty('beneficiario', beneficiario, setBeneficiario)} />
               </div>
@@ -245,16 +314,22 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
 
         {isRealEstate && (
           <div className="field full">
-            <div className="helper">Verifique al comprador. El sistema solo mostrará el nombre si la cédula existe en el directorio.</div>
+            <div className="helper" style={{ marginBottom: 8 }}>
+              Verifique al comprador. El sistema solo mostrará el nombre si la cédula existe en el directorio.
+            </div>
             <div className="lookup-grid single">
-              <PartyCard label="Cliente / Comprador reportado" role="Comprador"
+              <PartyCard label="Cliente / Comprador reportado" role="Comprador" icon={<Building2 size={14} />}
                 state={comprador} setState={setComprador}
                 onVerify={() => verifyParty('comprador', comprador, setComprador)} />
             </div>
           </div>
         )}
 
-        <div className="section-title">3. Información de la operación sospechosa</div>
+        {/* ── Sección 3: Operación sospechosa ── */}
+        <div className="section-title">
+          <span className="section-num">3</span>
+          Información de la operación sospechosa
+        </div>
         <div className="field">
           <label>Monto aproximado (USD)</label>
           <input type="number" step="0.01" min="0" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="985000" required />
@@ -295,19 +370,50 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
           <label>Descripción narrativa de los hechos</label>
           <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required minLength={30}
             placeholder="Explique la operación, la inusualidad detectada, las gestiones realizadas y por qué se considera sospechosa." />
-          <div className="helper">Mínimo 30 caracteres. Una narrativa insuficiente puede generar solicitud de subsanación.</div>
-        </div>
-
-        <div className="section-title">4. Sustento documental</div>
-        <div className="field full">
-          <div className="doc-summary">
-            <div className="info-box"><span>Requeridos</span><strong>{docList.length}</strong></div>
-            <div className="info-box"><span>Cargados</span><strong>{cargados}</strong></div>
-            <div className="info-box"><span>Pendientes</span><strong>{docList.length - cargados}</strong></div>
+          <div className="helper">
+            Mínimo 30 caracteres ({descripcion.length} escritos).
+            Una narrativa insuficiente puede generar solicitud de subsanación.
           </div>
-          <div className="helper">Cada documento tiene su propio contenedor de carga independiente.</div>
         </div>
 
+        {/* ── Sección 4: Sustento documental ── */}
+        <div className="section-title">
+          <span className="section-num">4</span>
+          Sustento documental
+        </div>
+
+        <div className="field full">
+          {/* KPI summary */}
+          <div className="doc-summary">
+            <div className="info-box" style={{ borderColor: '#dbe8f6', background: 'var(--primary-soft)' }}>
+              <span style={{ color: 'var(--primary)' }}>Requeridos</span>
+              <strong style={{ color: 'var(--primary)' }}>{docList.length}</strong>
+            </div>
+            <div className="info-box" style={{ borderColor: cargados > 0 ? 'rgba(21,128,61,.3)' : undefined, background: cargados > 0 ? 'var(--green-soft)' : undefined }}>
+              <span style={{ color: cargados > 0 ? 'var(--green)' : undefined }}>Cargados</span>
+              <strong style={{ color: cargados > 0 ? 'var(--green)' : 'var(--primary)' }}>{cargados}</strong>
+            </div>
+            <div className="info-box" style={{ borderColor: docList.length - cargados > 0 ? '#fedf89' : 'rgba(21,128,61,.3)', background: docList.length - cargados > 0 ? 'var(--amber-soft)' : 'var(--green-soft)' }}>
+              <span style={{ color: docList.length - cargados > 0 ? 'var(--amber)' : 'var(--green)' }}>Pendientes</span>
+              <strong style={{ color: docList.length - cargados > 0 ? 'var(--amber)' : 'var(--green)' }}>{docList.length - cargados}</strong>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          {docList.length > 0 && (
+            <div className="doc-progress">
+              <div className="doc-progress-header">
+                <span className="doc-progress-label">Progreso de carga</span>
+                <span className="doc-progress-pct">{pct}%</span>
+              </div>
+              <div className="doc-progress-bar">
+                <div className="doc-progress-fill" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Document cards */}
         <div className="field full">
           <div className="doc-grid">
             {docList.map((d, i) => {
@@ -315,70 +421,145 @@ export function NuevoRosForm({ sujeto, plantillas, docsByPlantilla, oficialDefau
               return (
                 <div key={d.id} className={`doc-card${file ? ' uploaded' : ''}`}>
                   <div className="doc-top">
-                    <div className="doc-title">{i + 1}. {d.nombre}</div>
-                    <span className={`badge ${file ? 'green' : 'amber'}`}>{file ? 'Cargado' : 'Pendiente'}</span>
+                    <div className="doc-title">
+                      <FileText size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5, opacity: .6 }} />
+                      {i + 1}. {d.nombre}
+                    </div>
+                    <span className={`badge ${file ? 'green' : 'amber'}`}>
+                      {file ? 'Cargado' : 'Pendiente'}
+                    </span>
                   </div>
-                  <input
-                    type="file"
-                    onChange={(e) => setFiles({ ...files, [d.id]: e.target.files?.[0] ?? null })}
+                  <FileDropZone
+                    file={file}
+                    onChange={(f) => setFiles({ ...files, [d.id]: f })}
                   />
-                  {file && <div className="file-name">Archivo: {file.name}</div>}
-                  <div className="helper">Carga individual para identificar este sustento de forma separada.</div>
                 </div>
               );
             })}
           </div>
         </div>
 
+        {/* Extra evidence */}
         <div className="field full">
           <label>Evidencia adicional no catalogada</label>
-          <input type="file" multiple onChange={(e) => setExtras(Array.from(e.target.files ?? []))} />
-          <div className="helper">Fotografías, notas, correos u otros archivos complementarios que no están en la plantilla.</div>
+          <div
+            className={`upload-zone${extras.length > 0 ? ' has-file' : ''}`}
+            style={{ minHeight: 70 }}
+            onClick={() => document.getElementById('extras-input')?.click()}
+          >
+            <input
+              id="extras-input"
+              type="file"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => setExtras(Array.from(e.target.files ?? []))}
+            />
+            {extras.length > 0 ? (
+              <div className="upload-zone-content">
+                <CheckCircle size={18} className="upload-zone-icon uploaded" />
+                <div>
+                  <div className="upload-zone-filename">{extras.length} archivo{extras.length > 1 ? 's' : ''} seleccionado{extras.length > 1 ? 's' : ''}</div>
+                  <div className="upload-zone-size">{extras.map((f) => f.name).join(', ')}</div>
+                </div>
+                <button
+                  type="button"
+                  className="upload-zone-remove"
+                  onClick={(e) => { e.stopPropagation(); setExtras([]); }}
+                  aria-label="Quitar archivos"
+                >×</button>
+              </div>
+            ) : (
+              <div className="upload-zone-content">
+                <FileCheck size={16} className="upload-zone-icon" />
+                <div className="upload-zone-empty">
+                  <div className="upload-zone-hint">Seleccionar archivos adicionales (múltiples)</div>
+                  <div className="upload-zone-types">Fotografías, notas, correos u otros archivos complementarios no incluidos en la plantilla</div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {error && <div className="client-status error" style={{ gridColumn: '1 / -1' }}>{error}</div>}
-        {success && <div className="client-status found" style={{ gridColumn: '1 / -1' }}>{success}</div>}
+        {/* Feedback */}
+        {error && (
+          <div className="client-status error" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <AlertCircle size={15} style={{ flexShrink: 0 }} />
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="client-status found" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle size={15} style={{ flexShrink: 0 }} />
+            {success}
+          </div>
+        )}
 
         <div className="action-row" style={{ gridColumn: '1 / -1' }}>
-          <button type="submit" className="btn primary" disabled={submitting || pending}>
-            {submitting ? 'Enviando ROS a la UAF…' : 'Enviar ROS a la UAF'}
+          <button type="submit" className="btn primary" disabled={submitting || pending} style={{ minWidth: 200, justifyContent: 'center' }}>
+            {submitting ? (
+              <>Enviando ROS a la UAF…</>
+            ) : (
+              <>
+                <FileCheck size={16} />
+                Enviar ROS a la UAF
+              </>
+            )}
           </button>
+          {docList.length > 0 && cargados < docList.length && (
+            <div className="helper" style={{ margin: 0, alignSelf: 'center' }}>
+              {docList.length - cargados} documento{docList.length - cargados > 1 ? 's' : ''} pendiente{docList.length - cargados > 1 ? 's' : ''} — puede enviar con documentos faltantes.
+            </div>
+          )}
         </div>
+
       </div>
     </form>
   );
 }
 
 function PartyCard({
-  label, role, state, setState, onVerify,
+  label, role, icon, state, setState, onVerify,
 }: {
   label: string;
   role: string;
+  icon: React.ReactNode;
   state: PartyState;
   setState: (s: PartyState) => void;
   onVerify: () => void;
 }) {
   return (
     <div className="lookup-card">
-      <div className="lookup-title">{label}</div>
+      <div className="lookup-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {icon}
+        {label}
+      </div>
       <div className="lookup-row">
         <input
           placeholder={`Cédula del ${role.toLowerCase()}`}
           value={state.id}
           onChange={(e) => setState({ ...state, id: e.target.value, status: 'idle', nombre: '' })}
         />
-        <button type="button" className="btn secondary" onClick={onVerify}>Verificar</button>
+        <button type="button" className="btn secondary" onClick={onVerify} style={{ whiteSpace: 'nowrap' }}>
+          Verificar
+        </button>
       </div>
       {state.status === 'verified' && (
-        <div className="client-status found">
+        <div className="client-status found" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <CheckCircle size={13} style={{ flexShrink: 0 }} />
           Coincidencia encontrada. Por privacidad, únicamente se muestra el nombre del {role.toLowerCase()}.
         </div>
       )}
       {state.status === 'not_found' && (
-        <div className="client-status warning">{state.message}</div>
+        <div className="client-status warning" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <AlertCircle size={13} style={{ flexShrink: 0 }} />
+          {state.message}
+        </div>
       )}
       {state.status === 'error' && (
-        <div className="client-status error">{state.message}</div>
+        <div className="client-status error" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <AlertCircle size={13} style={{ flexShrink: 0 }} />
+          {state.message}
+        </div>
       )}
       <div className="field full">
         <label>Nombre encontrado</label>

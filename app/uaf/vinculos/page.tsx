@@ -32,17 +32,12 @@ export default async function VinculosPage() {
     `,
   ).all();
 
-  const userInitials = (session!.user.name ?? 'AU').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Vinculación intersectorial"
         title="Vínculos detectados entre ROS"
         description="Coincidencias entre ROS de distintos sujetos obligados (personas, beneficiarios, sociedades, cuentas, inmuebles…). Requieren validación por un analista antes de consolidarse."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="MFA activo"
       />
 
       <div className="card">

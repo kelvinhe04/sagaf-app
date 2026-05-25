@@ -31,17 +31,12 @@ export default async function AdminHome() {
     )
     .all();
 
-  const userInitials = (session!.user.name ?? 'AD').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
   return (
     <>
       <TopBar
         eyebrow="Administración SAGAF"
         title="Panel de administración"
         description="Gestiona usuarios, sujetos obligados y plantillas de ROS. Este rol no tiene acceso al contenido sensible de los reportes (separación de responsabilidades)."
-        userInitials={userInitials}
-        userName={session!.user.name ?? ''}
-        userBadge="Administrador · MFA activo"
       />
 
       <div className="kpis">

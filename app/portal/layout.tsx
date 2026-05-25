@@ -15,10 +15,13 @@ export default async function PortalLayout({ children }: { children: React.React
   if (!session?.user) redirect('/login');
   if (session.user.rol !== 'sujeto_obligado') redirect('/');
 
+  const userInitials = (session.user.name ?? 'SO').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+
   return (
     <AppShell
       role="sujeto_obligado"
       userName={session.user.name ?? session.user.email ?? 'Sujeto obligado'}
+      userInitials={userInitials}
       navItems={navItems}
       note="Portal autenticado con verificación de dos factores. Cada documento se carga en su propio contenedor y la identidad se valida sin exponer datos personales."
     >
