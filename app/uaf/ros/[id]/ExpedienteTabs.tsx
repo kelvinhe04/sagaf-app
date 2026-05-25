@@ -5,6 +5,7 @@ import { Badge } from '@/components/Badge';
 import { Timeline } from '@/components/Timeline';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { maskDescriptionText } from '@/lib/masking';
+import { formatPanama } from '@/lib/date';
 
 interface DocReq  { id: string; nombre: string; orden: number }
 interface DocAdj  {
@@ -242,7 +243,7 @@ export function RosExpedienteTabs({
                   {adj ? (
                     <>
                       <div className="file-name">Archivo: {adj.nombre_archivo}</div>
-                      <div className="small">Recibido: {new Date(adj.fecha_carga).toLocaleString('es-PA')}</div>
+                      <div className="small">Recibido: {formatPanama(adj.fecha_carga)}</div>
                       {adj.observacion && (
                         <div className="client-status warning">
                           <strong>Observación:</strong> {adj.observacion}
@@ -276,7 +277,7 @@ export function RosExpedienteTabs({
                       <div className="doc-title">{e.nombre_archivo}</div>
                       <Badge tone="gray">extra</Badge>
                     </div>
-                    <div className="small">Recibido: {new Date(e.fecha_carga).toLocaleString('es-PA')}</div>
+                    <div className="small">Recibido: {formatPanama(e.fecha_carga)}</div>
                     <a href={`/api/documentos/${e.id}/file`} target="_blank" className="btn ghost" rel="noreferrer">Ver</a>
                   </div>
                 ))}
@@ -314,7 +315,7 @@ export function RosExpedienteTabs({
               <h3 style={{ margin: 0, fontSize: 16 }}>Subsanaciones de este expediente</h3>
               <Timeline events={subs.map((s) => ({
                 title: `Subsanación #${s.id.slice(0, 8)} · ${s.estado}`,
-                description: `${s.motivo} — ${new Date(s.fecha_solicitud).toLocaleString('es-PA')}`,
+                description: `${s.motivo} — ${formatPanama(s.fecha_solicitud)}`,
                 tone: s.estado === 'pendiente' ? 'amber' : 'green',
               }))} />
             </div>

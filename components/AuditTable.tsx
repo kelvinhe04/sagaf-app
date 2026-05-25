@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { Badge } from './Badge';
+import { formatPanama } from '@/lib/date';
 import { AuditFilters, type AuditFilterValues } from './AuditFilters';
 
 interface Row {
@@ -80,7 +81,7 @@ export function AuditTable({ filters }: Props) {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id}>
-                  <td>{new Date(r.fecha_hora_servidor).toLocaleString('es-PA')}</td>
+                  <td>{formatPanama(r.fecha_hora_servidor)}</td>
                   <td>{r.usuario_correo ?? <span className="small">system</span>}</td>
                   <td><span className="small">{r.rol ?? '—'}</span></td>
                   <td>{r.modulo}</td>

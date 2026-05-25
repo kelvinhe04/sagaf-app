@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { KpiCard } from '@/components/KpiCard';
 import { Badge } from '@/components/Badge';
+import { formatPanama } from '@/lib/date';
 import { InfoBox } from '@/components/InfoBox';
 
 export const revalidate = 0;
@@ -166,7 +167,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
               {tiempos.map((t) => (
                 <tr key={t.numero_ros}>
                   <td><strong>{t.numero_ros}</strong></td>
-                  <td>{new Date(t.fecha_recepcion).toLocaleString('es-PA')}</td>
+                  <td>{formatPanama(t.fecha_recepcion)}</td>
                   <td>{t.tiempo_horas?.toFixed(1) ?? '—'}</td>
                 </tr>
               ))}

@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge, estadoTone, estadoLabel, riskTone } from '@/components/Badge';
+import { formatPanamaShort } from '@/lib/date';
 
 export const revalidate = 0;
 
@@ -160,7 +161,7 @@ export default async function MisROS({
                       </strong>
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>
-                      {new Date(r.fecha_recepcion).toLocaleString('es-PA', { dateStyle: 'short', timeStyle: 'short' })}
+                      {formatPanamaShort(r.fecha_recepcion)}
                     </td>
                     <td><Badge tone={estadoTone(r.estado)}>{estadoLabel(r.estado)}</Badge></td>
                     <td style={{ whiteSpace: 'nowrap' }}>USD {r.monto.toLocaleString('en-US')}</td>

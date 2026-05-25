@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge, estadoTone, estadoLabel, riskTone } from '@/components/Badge';
+import { formatPanama, formatPanamaDate } from '@/lib/date';
 import { InfoBox } from '@/components/InfoBox';
 import { BackButton } from '@/components/BackButton';
 import { canAccessROS } from '@/lib/permissions';
@@ -128,8 +129,8 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
           <div className="summary-grid">
             <InfoBox label="Número" value={<strong>{ros.numero_ros}</strong>} />
             <InfoBox label="Estado" value={<Badge tone={estadoTone(ros.estado)}>{estadoLabel(ros.estado)}</Badge>} />
-            <InfoBox label="Fecha detección" value={new Date(ros.fecha_deteccion).toLocaleDateString('es-PA')} />
-            <InfoBox label="Fecha recepción UAF" value={new Date(ros.fecha_recepcion).toLocaleString('es-PA')} />
+            <InfoBox label="Fecha detección" value={formatPanamaDate(ros.fecha_deteccion)} />
+            <InfoBox label="Fecha recepción UAF" value={formatPanama(ros.fecha_recepcion)} />
             <InfoBox label="Oficial de cumplimiento" value={ros.oficial_cumplimiento} />
             <InfoBox label="Riesgo asignado" value={riesgo ? <Badge tone={riskTone(riesgo.nivel)}>{riesgo.nivel}</Badge> : <span className="small">Sin clasificar aún</span>} />
             {op && (
@@ -196,7 +197,7 @@ export default async function RosDetailPortal({ params }: { params: Promise<{ id
                   <div className="report-meta">
                     <span><strong>Motivo:</strong> {s.motivo}</span>
                     {adj && <span><strong>Documento:</strong> {adj.nombre_archivo}</span>}
-                    <span>{new Date(s.fecha_solicitud).toLocaleString('es-PA')}</span>
+                    <span>{formatPanama(s.fecha_solicitud)}</span>
                   </div>
                 </div>
               );

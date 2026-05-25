@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge, riskTone, estadoTone, estadoLabel } from '@/components/Badge';
+import { formatPanama } from '@/lib/date';
 import { InfoBox } from '@/components/InfoBox';
 import { Notice } from '@/components/Notice';
 import { BackButton } from '@/components/BackButton';
@@ -205,7 +206,7 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
                 <p className="small" style={{ marginBottom: 12 }}>Cada cambio queda registrado con su justificación.</p>
                 <Timeline events={riesgos.map((r) => ({
                   title: `${r.nivel.toUpperCase()} · ${r.puntaje}/100 · ${r.clasificado_por_nombre}`,
-                  description: `${r.justificacion} — ${new Date(r.fecha_clasificacion).toLocaleString('es-PA')}`,
+                  description: `${r.justificacion} — ${formatPanama(r.fecha_clasificacion)}`,
                   tone: r.nivel === 'alto' ? 'red' : r.nivel === 'medio' ? 'amber' : 'green',
                 }))} />
               </div>
@@ -220,7 +221,7 @@ export default async function ExpedienteUaf({ params }: { params: Promise<{ id: 
         }))}
         auditEvents={auditoria.map((a) => ({
           title: `${a.accion} · ${a.usuario_correo ?? 'system'} (${a.rol ?? '—'})`,
-          description: `${new Date(a.fecha_hora_servidor).toLocaleString('es-PA')} · módulo ${a.modulo} · ${a.resultado}${a.detalle ? ` · ${a.detalle}` : ''}`,
+          description: `${formatPanama(a.fecha_hora_servidor)} · módulo ${a.modulo} · ${a.resultado}${a.detalle ? ` · ${a.detalle}` : ''}`,
           tone: a.criticidad === 'critica' ? 'red' : a.criticidad === 'alta' ? 'amber' : 'default',
         }))}
         subs={subs}

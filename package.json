@@ -4,7 +4,7 @@
   "private": true,
   "description": "SAGAF — Sistema Automatizado de Gestión de Análisis Financiero (UAF Panamá). Parcial 2 ISA IV — UTP 1GS241.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

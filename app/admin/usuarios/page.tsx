@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge } from '@/components/Badge';
+import { formatPanama } from '@/lib/date';
 import { NuevoUsuarioForm } from './NuevoUsuarioForm';
 import { UsuarioActions } from './UsuarioActions';
 
@@ -76,7 +77,7 @@ export default async function UsuariosAdmin() {
                     {u.mfa_activo ? 'enrolado' : 'sin enrolar'}
                   </Badge>
                 </td>
-                <td className="small">{u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-PA') : '—'}</td>
+                <td className="small">{u.ultimo_acceso ? formatPanama(u.ultimo_acceso) : '—'}</td>
                 <td><UsuarioActions usuarioId={u.id} estadoActual={u.estado} /></td>
               </tr>
             ))}

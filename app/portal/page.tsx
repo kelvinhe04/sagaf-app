@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { KpiCard } from '@/components/KpiCard';
 import { Badge, estadoTone, estadoLabel, riskTone } from '@/components/Badge';
+import { formatPanamaMedium } from '@/lib/date';
 import { FileText, FilePlus, RefreshCw, AlertTriangle, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 
 export const revalidate = 0;
@@ -203,7 +204,7 @@ export default async function PortalHome() {
                   <div className="report-meta">
                     <span>
                       <Clock size={11} style={{ display: 'inline', marginRight: 4 }} />
-                      {new Date(r.fecha_recepcion).toLocaleString('es-PA', { dateStyle: 'medium', timeStyle: 'short' })}
+                      {formatPanamaMedium(r.fecha_recepcion)}
                     </span>
                     <span>
                       USD {r.monto.toLocaleString('en-US')} · Docs: {r.doc_cargados}/{r.doc_total}

@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { TopBar } from '@/components/TopBar';
 import { Badge } from '@/components/Badge';
+import { formatPanama } from '@/lib/date';
 
 export const revalidate = 0;
 
@@ -64,7 +65,7 @@ export default async function SubsanacionesPage() {
                   <td>{r.motivo}</td>
                   <td>{r.documento_nombre ?? '—'}</td>
                   <td><Badge tone={r.estado === 'pendiente' ? 'amber' : 'green'}>{r.estado}</Badge></td>
-                  <td>{new Date(r.fecha_solicitud).toLocaleString('es-PA')}</td>
+                  <td>{formatPanama(r.fecha_solicitud)}</td>
                   <td>
                     <Link href={`/portal/ros/${r.ros_id}`} className="btn primary" style={{ padding: '8px 12px', fontSize: 12 }}>
                       Atender
